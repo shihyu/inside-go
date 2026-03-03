@@ -1,0 +1,377 @@
+<!DOCTYPE HTML>
+<html lang="zh-TW" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Day 28 第二十八天：其他的 M 登場 - 入吾 Go 中：走訪 Go 語言內部實作</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">入吾 Go 中：走訪 Go 語言內部實作</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://ithelp.ithome.com.tw/users/20103524/ironman/2589" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="第二十八天其他的-m-登場"><a class="header" href="#第二十八天其他的-m-登場">第二十八天：其他的 M 登場</a></h1>
+<ul>
+<li>Day: 28</li>
+<li>發佈日期: 2019-10-13</li>
+<li>原文: <a href="https://ithelp.ithome.com.tw/articles/10227625">https://ithelp.ithome.com.tw/articles/10227625</a></li>
+</ul>
+<h3 id="前情提要"><a class="header" href="#前情提要">前情提要</a></h3>
+<hr />
+<p>昨日終於進入了 <code>runtime.main</code>，並將全域的 <code>mainStarted</code> 設置為真，昭告天下執行期環境已經快要完備了。</p>
+<h4 id="重返-systemstack"><a class="header" href="#重返-systemstack">重返 <code>systemstack</code></a></h4>
+<pre><code class="language-go">        if GOARCH != "wasm" { // no threads on wasm yet, so no sysmon
+                systemstack(func() {
+                        newm(sysmon, nil)
+                })
+    }
+
+</code></pre>
+<p>顯然我們現在的 CPU 架構並非 <code>wasm</code>，所以這裡就會確實進入執行在 <code>systemstack</code> 上的 <code>newm</code> 函式。它將使用 <code>sysmon</code> 函式當作執行的內容，且不指定 P（第二個參數的 nil）。</p>
+<p>簡單回顧一下 <code>systemstack</code> 這個轉一手的過程。它在架構相依的組語檔案中，依照不同的呼叫者有不同的處理；如果是 <code>g0</code> 或 <code>gsignal</code> 進來的話，就直接呼叫傳入的函式，這也是我們之前所有呼叫的過程；但如果像現在，已經是一個普通的 goroutine 進入到這裡，就必須要讓 <code>g0</code> 來處理。其中還有一行註解寫道，<strong>讓執行過程看起來像是從 <code>mstart</code> 直接呼叫 <code>systemstack</code></strong>，也就是說，除了有變換 goroutine 以執行的魔術之外，也有類似之前 <code>gogo</code> 那樣的技巧，根本上改變整個執行期佇列的感覺。如 gdb 所示，進到 <code>newm</code> 函式之時的 back trace 是這樣子：</p>
+<pre><code>Breakpoint 1, runtime.newm (fn={void (void)} 0x7fffffffde90, _p_=0x0) at /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:1840
+1840    func newm(fn func(), _p_ *p) {
+(gdb) bt
+#0  runtime.newm (fn={void (void)} 0x7fffffffde90, _p_=0x0) at /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:1840
+#1  0x0000000000450066 in runtime.main.func1 () at /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:134
+#2  0x00000000004511a6 in runtime.systemstack () at /home/noner/FOSS/2019ITMAN/go/src/runtime/asm_amd64.s:370
+#3  0x000000000042d8c0 in ?? () at /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:1116
+#4  0x0000000000451034 in runtime.rt0_go () at /home/noner/FOSS/2019ITMAN/go/src/runtime/asm_amd64.s:220
+#5  0x0000000000000000 in ?? ()
+
+</code></pre>
+<p>其中第 3 層雖然 symbol 和所屬檔案、位置全部都是錯的，但位置騙不了人，反組譯之後那個位置恰恰是 <code>runtime.mstart</code> 函式的起始位置。</p>
+<p>無論如何，進到 <code>newm</code> 之後，goroutine 又會切換回 <code>g0</code>。</p>
+<h4 id="newm-函式"><a class="header" href="#newm-函式"><code>newm</code> 函式</a></h4>
+<p><code>newm</code> 函式使用兩個參數。第一個是 <code>fn</code>，將會是新生成的執行緒所要執行的函式，這裡傳入 <code>sysmon</code>，以下稱為<strong>系統監視者</strong>；第二個是 P 型別，但是這裡傳入的是 nil（傳入 P 是為了有時候必須被借用做記憶體配置）。</p>
+<p>這個函式會生成一個新的 M 供接下來使用，配置的部份在第一行呼叫的 <code>allocm</code> 函式之中的</p>
+<pre><code class="language-go">        mp := new(m)
+        mp.mstartfn = fn
+        mcommoninit(mp)
+                  
+    mp.g0 = malg(8192 * sys.StackGuardMultiplier)
+        mp.g0.m = mp
+
+</code></pre>
+<p>可見除了配置這個結構體本身需要空間之外，還指配了傳進來的函式。<code>mcommoninit</code> 函式我們在第十天曾經看到過，總之是一些通用的配置；再來是這個新的 M 必須要有自己的基本 goroutine，使用 <code>malg</code> 函式配置之。<code>newm</code> 函式接下來進入 <code>newm1</code> 函式，這個命名方式大概就類似 <code>newproc</code> 呼叫 <code>newproc1</code> 的那種感覺吧。</p>
+<pre><code class="language-go">func newm1(mp *m) {
+        if iscgo {
+        ...
+        return
+        }       
+        execLock.rlock() // Prevent process clone.
+        newosproc(mp)
+        execLock.runlock()
+}
+
+</code></pre>
+<p>我們不在 cgo 呼叫的過程中，所以這裡先略過吧。<code>execLock</code> 本身是一個 <code>rwmutex</code> 型別的結構體，詳細的演算法無法來得及介紹，但通常它的使用就如註解說的，是為了確保 <code>clone</code>、<code>execute</code> 之類的函式不至於因為並行處理而造成系統狀態錯誤。夾在兩個 lock 方法之間的 <code>newosproc</code> 就是要生成系統監控者執行緒的入口了：</p>
+<pre><code class="language-go">        stk := unsafe.Pointer(mp.g0.stack.hi)
+         
+        var oset sigset
+        sigprocmask(_SIG_SETMASK, &amp;sigset_all, &amp;oset)
+        ret := clone(cloneFlags, stk, unsafe.Pointer(mp), unsafe.Pointer(mp.g0), unsafe.Pointer(funcPC(mstart))) 
+        sigprocmask(_SIG_SETMASK, &amp;oset, nil)
+
+</code></pre>
+<p>核心的部份是被兩個 <code>sigprocmask</code> 函式夾在中間的 <code>clone</code> 函式，這兩個也都是系統呼叫的 wrapper。之所以 <code>clone</code> 必須被夾在中間，是不想讓創新執行緒的過程被 signal 中斷徒增紛擾。對於 <code>clone</code> 系統呼叫稍有經驗的讀者應該很警覺，這裡的 prototype 加了一點料，的確如此。原本的 Linux clone 長成這樣子：</p>
+<pre><code>       int clone(int (*fn)(void *), void *child_stack,
+                 int flags, void *arg, ...
+                 /* pid_t *ptid, void *newtls, pid_t *ctid */ );
+
+</code></pre>
+<p>這個很明顯不同於 <code>runtime.clone</code> 針對系統呼叫的 ABI（rdi, rsi, rdx, r10 的順序）給值：</p>
+<pre><code>TEXT runtime·clone(SB),NOSPLIT,$0
+        MOVL    flags+0(FP), DI
+        MOVQ    stk+8(FP), SI
+        MOVQ    $0, DX
+        MOVQ    $0, R10
+         
+        // Copy mp, gp, fn off parent stack for use by child.
+        // Careful: Linux system call clobbers CX and R11.
+        MOVQ    mp+16(FP), R8
+        MOVQ    gp+24(FP), R9
+        MOVQ    fn+32(FP), R12
+         
+        MOVL    $SYS_clone, AX
+        SYSCALL
+...
+
+</code></pre>
+<p>這又是怎麼回事呢？其實兩個都有道理，只是 manpage 的內容是給 userspace 參考用的 API，所以 C Library 必須實作成那個樣子。以 GNU libc 為例的話，可以在<a href="https://github.com/lattera/glibc/blob/master/sysdeps/unix/sysv/linux/x86_64/clone.S">這裡</a>看到註解中寫道兩者的差別。無論如何，剛才提到的<strong>加料</strong>指的就是 M 和 G 的傳入；至於 <code>stk</code> 和 <code>flags</code> 當然是 Linux 特色的執行緒的基本需求，前者是新執行緒所需要的堆疊空間，後者則是配置新執行緒的組態設定（GO 語言都使用同一組來配置新執行緒）。</p>
+<p>在這之後，目前的 goroutine 會正式分出另一個執行緒，</p>
+<pre><code>        // In parent, return.
+        CMPQ    AX, $0
+        JEQ     3(PC)
+        MOVL    AX, ret+40(FP)
+        RET
+        
+        // In child, on new stack.
+        MOVQ    SI, SP
+        
+        // If g or m are nil, skip Go-related setup.
+        CMPQ    R8, $0    // m
+        JEQ     nog
+        CMPQ    R9, $0    // g
+        JEQ     nog
+...
+        // Call fn
+        CALL    R12
+       
+        // It shouldn't return. If it does, exit that thread.
+        MOVL    $111, DI
+        MOVL    $SYS_exit, AX
+        SYSCALL
+        JMP     -3(PC)  // keep exiting
+
+</code></pre>
+<p>原先的執行緒回傳去了，而新生的這個指定它可以使用的堆疊之後，終究最後會呼叫到位在 <code>r12</code> 暫存器的函式。但是如果是看得很任真的讀者應該會發覺不對勁，當初 <code>newm</code> 想要啟動的是 <code>sysmon</code> 函式來監控系統狀態，但是呼叫 <code>clone</code> 時已經狸貓換太子變成了 <code>mstart</code>！事實上，這是為了配置一些 M 的初始設定，而在 <code>mstart</code> 呼叫的 <code>mstart1</code> 當中，有一個區塊之前因為條件不合而沒有進入</p>
+<pre><code class="language-go">        if fn := _g_.m.mstartfn; fn != nil {
+                fn()
+        }
+
+</code></pre>
+<p>這時的新執行緒就會取得當時配置的系統監控者函式，因此會有這樣的 call stack：</p>
+<pre><code>Thread 2 "hw" hit Breakpoint 1, runtime.sysmon () at /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:4315
+4315    func sysmon() {
+(gdb) bt
+#0  runtime.sysmon () at /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:4315
+#1  0x000000000042da13 in runtime.mstart1 () at /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:1238
+#2  0x000000000042d92e in runtime.mstart () at /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:1203
+#3  0x0000000000455043 in runtime.clone () at /home/noner/FOSS/2019ITMAN/go/src/runtime/sys_linux_amd64.s:587
+#4  0x0000000000000000 in ?? ()
+(gdb)
+
+</code></pre>
+<h3 id="疑問"><a class="header" href="#疑問">疑問</a></h3>
+<hr />
+<ul>
+<li>之前也問過了，可是為什麼函式指標要傳程式碼的指標的指標？</li>
+<li>到底為什麼會有 <code>xxx1</code> 這種函式命名法？</li>
+<li>GO 語言的 rwmutex 機制是什麼？</li>
+<li>系統監視者函式具體來說是作什麼的？</li>
+</ul>
+<h3 id="本日小結"><a class="header" href="#本日小結">本日小結</a></h3>
+<hr />
+<p>今日正式脫離單線程模式啦！雖然應該是沒時間深入系統監控者 M 了，但是整個 runtime 慢慢完備起來的同時，卻有可能因為 <code>main.main</code> 太過短暫而讓那些功能都變成殺雞的牛刀。無論如何，我們就快接近了！各位讀者，我們明日再會！</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="day-27.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="day-29.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="day-27.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="day-29.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,356 @@
+<!DOCTYPE HTML>
+<html lang="zh-TW" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Day 25 第二十五天：minit 與 signal 設置 - 入吾 Go 中：走訪 Go 語言內部實作</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">入吾 Go 中：走訪 Go 語言內部實作</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://ithelp.ithome.com.tw/users/20103524/ironman/2589" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="第二十五天minit-與-signal-設置"><a class="header" href="#第二十五天minit-與-signal-設置">第二十五天：minit 與 signal 設置</a></h1>
+<ul>
+<li>Day: 25</li>
+<li>發佈日期: 2019-10-10</li>
+<li>原文: <a href="https://ithelp.ithome.com.tw/articles/10226695">https://ithelp.ithome.com.tw/articles/10226695</a></li>
+</ul>
+<h3 id="前情提要"><a class="header" href="#前情提要">前情提要</a></h3>
+<hr />
+<p>昨日進入到 <code>mstart</code> 函式之中，可算是整個 bootstrap 的最後階段。在裡面走到 <code>mstart1</code>，也透過 gdb 觀察得知就是在這裡面執行 Hello World 無誤。</p>
+<h4 id="開始-mstart1"><a class="header" href="#開始-mstart1">開始 <code>mstart1</code></a></h4>
+<p><code>mstart1</code> 一樣在 <code>runtime/proc.go</code> 裡面，最一開始是這樣：</p>
+<pre><code class="language-go">func mstart1() {
+        _g_ := getg()
+         
+        if _g_ != _g_.m.g0 {
+                throw("bad runtime·mstart")
+        }
+
+</code></pre>
+<p>先取得當前的 goroutine 之後，如果發現當前的 G 不是 <code>g0</code> 就強制中止啟動流程。</p>
+<blockquote>
+<p>這麼說來，<code>throw</code> 函式以及後續的一連串 panic 處理也頗為值得介紹。雖然 Hello World 本身當然是不會 fail，但是可以想辦法用 gdb 輔助製造出那樣的情境。下次就來追追看吧！</p>
+</blockquote>
+<p>下一段的程式碼開始之前是解說的註解。這裡會紀錄下前一個呼叫（caller）的狀態，包含程式執行指標（<code>pc</code>）和堆疊指標（<code>sp</code>）以及其他的資訊。這份紀錄會作為最初的堆疊（top stack），給之後的 <code>mcall</code> 函式使用，也用來完結那個 thread。接下來在 <code>mstart1</code> 呼叫到 <code>schedule</code> 之後就再也不會回到這個地方了，所以也可以使用這個紀錄下來的呼叫框架。</p>
+<pre><code>        save(getcallerpc(), getcallersp())
+        asminit()
+        minit()
+
+</code></pre>
+<p>這個 <code>save</code> 函式之前應該也有看過才對。它先是透過 compiler 的一些幫忙取得這兩個傳入參數，然後在本體之中更新 <code>sched</code> 成員變數的諸般內容，讓日後其他執行緒執行 <code>gogo</code> 函式的時候使用。</p>
+<blockquote>
+<p>還記得嗎？<code>gogo</code> 就是相對於 <code>gosave</code>、類似 C 的 <code>longjmp</code> 那樣的呼叫。它的使用情境通常是 <code>gogo(&amp;gp.sched)</code> 呼叫，代表即將加入 <code>gp</code> 到排程中。</p>
+</blockquote>
+<pre><code class="language-go">func save(pc, sp uintptr) {
+        _g_ := getg()
+      
+        _g_.sched.pc = pc
+        _g_.sched.sp = sp
+        _g_.sched.lr = 0
+        _g_.sched.ret = 0
+        _g_.sched.g = guintptr(unsafe.Pointer(_g_))
+        // We need to ensure ctxt is zero, but can't have a write
+        // barrier here. However, it should always already be zero.
+        // Assert that.
+        if _g_.sched.ctxt != nil {
+                badctxt()
+        }
+}
+
+</code></pre>
+<p>總之就是一些日後會用到的設定。</p>
+<h4 id="asminit-和-minit"><a class="header" href="#asminit-和-minit"><code>asminit</code> 和 <code>minit</code></a></h4>
+<p>前者在 <code>runtime/asm_amd64.s</code> 當中，但是 amd64 架構不需要執行任何步驟就立刻回傳了，其他像是 arm、386 才有一些考量非得在這裡設定一些 CPU 相關的內容。後者是作業系統相關的部份，根據註解是用來創造一個新的 M。本體在 <code>runtime/os_linux.go</code> 之中，</p>
+<pre><code class="language-go">// Called to initialize a new m (including the bootstrap m).
+// Called on the new thread, cannot allocate memory.
+func minit() {
+        minitSignals()
+         
+        // for debuggers, in case cgo created the thread
+        getg().m.procid = uint64(gettid())
+}
+
+</code></pre>
+<blockquote>
+<p>註解第二行說不能分配記憶體是什麼意思？裡面的 for debugger 又是什麼意思？難道不是用除錯器就毫無用處嗎？</p>
+</blockquote>
+<p>看看對應的組語，</p>
+<pre><code class="language-go">   0x42664d &lt;runtime.minit+29&gt;:    callq  0x43af40 &lt;runtime.minitSignals&gt;
+   0x426652 &lt;runtime.minit+34&gt;:   callq  0x4529d0 &lt;runtime.gettid&gt;
+   0x426657 &lt;runtime.minit+39&gt;:   mov    %fs:0xfffffffffffffff8,%rax
+   0x426660 &lt;runtime.minit+48&gt;:   mov    0x30(%rax),%rax
+   0x426664 &lt;runtime.minit+52&gt;:   mov    (%rsp),%ecx
+   0x426667 &lt;runtime.minit+55&gt;:   mov    %rcx,0x48(%rax)
+   0x42666b &lt;runtime.minit+59&gt;:   mov    0x8(%rsp),%rbp
+   0x426670 &lt;runtime.minit+64&gt;:   add    $0x10,%rsp
+   0x426674 &lt;runtime.minit+68&gt;:   retq
+
+</code></pre>
+<p><code>minitSignal</code> 函式在 <code>runtime/signal_unix.go</code> 裡面，它會設置一個初始的 m 所需使用的 signal stack 和 mask。我們暫且跳過它只看後面的話，可以印證一些目前為止知道的事情。<code>mov %fs:0xfffffffffffffff8,%rax</code> 這個指令就是一直以來取得當前 goroutine 的方式，存放到 <code>rax</code> 暫存器之中；之後的兩次存取分別是取得當前的 M（<code>getg().m</code>），以及賦值給這個 M 的 <code>procid</code> 成員。其中我們也可以看到來自 <code>gettid</code> 的回傳值似乎存放在堆疊暫存器（<code>rsp</code>）所指的地方，雖然是先放到 4 個位元組的 <code>ecx</code> 裡面，再因為轉型而真正使用的是整個 8 byte 的 <code>rcx</code>。</p>
+<p>這裡的 <code>gettid</code> 的確就是系統呼叫無誤。Linux/amd64 的這個系統呼叫 wrapper 在 <code>runtime/sys_linux_amd64.s</code>，</p>
+<pre><code>TEXT runtime·gettid(SB),NOSPLIT,$0-4
+        MOVL    $SYS_gettid, AX
+        SYSCALL
+        MOVL    AX, ret+0(FP)
+        RET
+
+</code></pre>
+<p>基本上就是 amd64 的那一套：<code>rax</code> 作為系統呼叫號碼（這裡的 <code>$SYS_gettid</code> 也定義在檔案稍早處）。</p>
+<h4 id="minitsignals-函式"><a class="header" href="#minitsignals-函式"><code>minitSignals</code> 函式</a></h4>
+<p>就如前段描述的那樣，這個函式直截了當，</p>
+<pre><code class="language-go">func minitSignals() {
+        minitSignalStack()
+        minitSignalMask()
+}
+
+</code></pre>
+<p>前者關於佇列，我們可以再深入觀察</p>
+<pre><code class="language-go">func minitSignalStack() {    
+        _g_ := getg()        
+        var st stackt        
+        sigaltstack(nil, &amp;st)
+        if st.ss_flags&amp;_SS_DISABLE != 0 {
+                signalstack(&amp;_g_.m.gsignal.stack)
+                _g_.m.newSigstack = true
+        } else {             
+                setGsignalStack(&amp;st, &amp;_g_.m.goSigStack)
+                _g_.m.newSigstack = false
+        }                    
+}
+
+</code></pre>
+<p>這裡的 if-else 判斷式分成 GO 語言的通常狀況以及從 cgo 來的狀況。通常狀況的話，直接把 signal 需要的堆疊設置成 <code>gsignal</code> 這個 goroutine 的堆疊，這也是我們這個流程當中會經過的分支。</p>
+<p>其中有兩個呼叫非常相似，一個是判斷式之前的 <code>sigaltstack</code>，代表的是<strong>為了處理 signal 所需要的另一個堆疊</strong>，其本體也是一個系統呼叫的 wrapper。它的功能很有趣，前者是輸入，代表呼叫者可以指定當前 process 的 signal handler 可以使用的堆疊；後者是輸出，代表當前的 signal 所使用的堆疊。另一個是 <code>signalstack</code>，其實就是一個設置 signal 堆疊的函式，裡面也會引用只有使用到第一個參數的 <code>sigaltstack</code> 系統呼叫。</p>
+<h3 id="疑問"><a class="header" href="#疑問">疑問</a></h3>
+<hr />
+<ul>
+<li><code>getg</code>、<code>getcaller*</code> 函式好像都沒有本體，所以應該是 compiler 生成的？相關的程式在哪裡呢？</li>
+<li><code>minit</code> 函式前得住解說不能配置記憶體是什麼意思？</li>
+<li><code>getg().m.procid</code> 賦值自 <code>gettid</code>，為什麼說是為了 debugger 的？</li>
+</ul>
+<h3 id="本日小結"><a class="header" href="#本日小結">本日小結</a></h3>
+<hr />
+<p>今日潛入 <code>minit</code>，看完了 signal 所需要的堆疊的配置過程。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="day-24.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="day-26.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="day-24.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="day-26.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

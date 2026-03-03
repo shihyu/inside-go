@@ -1,0 +1,328 @@
+<!DOCTYPE HTML>
+<html lang="zh-TW" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Day 30 第三十天：繼續前進 - 入吾 Go 中：走訪 Go 語言內部實作</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">入吾 Go 中：走訪 Go 語言內部實作</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://ithelp.ithome.com.tw/users/20103524/ironman/2589" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="第三十天繼續前進"><a class="header" href="#第三十天繼續前進">第三十天：繼續前進</a></h1>
+<ul>
+<li>Day: 30</li>
+<li>發佈日期: 2019-10-15</li>
+<li>原文: <a href="https://ithelp.ithome.com.tw/articles/10228328">https://ithelp.ithome.com.tw/articles/10228328</a></li>
+</ul>
+<h3 id="開始"><a class="header" href="#開始">開始</a></h3>
+<hr />
+<p>回首第一篇規劃這個系列方向時，我一股腦列出許多主題，現在看來當然是像是螞蟻要對抗巨人一般可笑。事實上，認真要追蹤那些主題的話，都可以寫成多於一整個系列的鐵人文篇幅吧。當時沒有想到這麼多，這是時間軸上由前往後、由後往前之間的差異。</p>
+<p>最後一章名為開始，是因為後面的路還很長。筆者日常工作完全摸不到 GO 語言，此前完全只能說事業餘愛好者，這次鐵人賽雖然也算從頭到尾走過了 Hello World 的啟動，但對比已獲得的與已知不足的，這顯然也是走馬看花的小小郊遊罷了。</p>
+<p>仍然充滿感謝。</p>
+<p>感謝 GO 語言社群與前人的努力、</p>
+<p>感謝親友的支持、感謝讀者的監督、</p>
+<p>感謝一起並肩齊行的 IT 鐵人們每日發文的激勵作用 ... 而最感謝的還是 ITHome 願意主辦這樣的活動。讓有時覺得自己如同螺絲釘一般渺小的 IT 人有一個只跟自己比耐力的舞台。去年因故無法參賽，今年終於再回來了。</p>
+<p>我對於 GO 語言仍然充滿好奇。固然，若說當今世上偉大的系統專案是巍峨的建築，C 語言仍是它們的紅磚：讓人信賴、習慣、有效率。但是進入到雲端時代的系統已經有了新的風貌：Docker、Kubernetes 等大型分散式系統及其基石，所使用的建築基本材料已經是 GO 而非 C。在語言設計上的優勢使得它編譯快速、就算與 C 語言對接也能呈現良好功能，但開發的方便性與易維護性使它在這類專案中廣為使用。</p>
+<p>撰寫此篇的同時，GO 1.14 剛釋出，筆者日常業務的一部分的 CPU 架構 RISC-V 也進入了上游支援。GO 語言未來的延展性仍然是令人期待的。接下來列出系列文中留下的未解問題，當作之後繼續在學習 GO 語言的旅途中的指引。他們有些是關於 GO 語言的文化，有些則關於技術本身；有些系統問題龐大的可以專書探討，有些則是一些小觀念尚未打通。無論如何都是這系列中最真實的另外一面：系列文記載我所理解的部份，而這些問題代表我尚未了解的。</p>
+<h3 id="留下來的問題"><a class="header" href="#留下來的問題">留下來的問題</a></h3>
+<hr />
+<ul>
+<li>所謂的 <code>netpoll</code> 系統是指什麼？顯然在創建檔案的時候很重要。</li>
+<li><code>runtime.SetFinalizer</code> 是什麼？在整個 GO 語言 runtime 中扮演何種角色？</li>
+<li>追蹤過程中發現搶佔是可以被關掉的，也就是說 GO 語言有非同步的搶佔引擎。其機制為何？</li>
+<li><code>arg.(type)</code> 這種功能被稱作 reflect。GO 語言的 reflect 是怎麼做的？</li>
+<li><code>internal/race</code> 是怎麼樣的函式庫？功能？</li>
+<li><code>sync</code> 是怎樣的函式庫？功能？</li>
+<li><code>runtime.KeepAlive</code> 大致上可以顧名思義。但為什麼它出現在讀寫之後？讀寫之前難道就沒有被 runtime 影響的危險嗎？</li>
+<li>處理管線錯誤訊號的時候有瞄到 <code>sigpipe</code>，GO 語言如何處理 signal？</li>
+<li><code>.gopclntab</code> 區段是什麼？</li>
+<li>初始化後什麼時候開始進入通用的 GO 語言部份？</li>
+<li><code>import</code> 關鍵字有時會引用多層結構，為什麼要這樣作？</li>
+<li>常常看見 <code>internal</code> 什麼什麼。<strong>內部的</strong>這個關鍵字的差異是什麼？這些函式庫不都是內部的的嗎？</li>
+<li><code>unsafe</code> 的用途。</li>
+<li><code>sched_getaffinity</code> 並沒有像之前 <code>write</code> 那樣最終導到 <code>Syscall</code> 去。</li>
+<li>GO 命名的歷史淵源，還有為什麼 runtime 跟大家都不一樣？是否是 linker 之類的工具鏈限制使然？</li>
+<li>goroutine 的構成，顯然是理解 GO 語言的關鍵。 <code>g0</code> 和 <code>gsignal</code> 分別是怎麼來的？如何生成或指派的？</li>
+<li>fn 函式？</li>
+<li>怎麼開啟具備 race 功能的編譯模式？</li>
+<li><code>skipPC</code> 的具體用途？</li>
+<li>GO 語言抽象了所有不同架構，仍然保持 <code>PC</code>、<code>SP</code>、<code>FP</code>、<code>LR</code> 等關鍵抽象暫存器，這些對於整個 stack trace 功能的具體實作為何？</li>
+<li>goroutine 的構成，顯然是理解 GO 語言的關鍵。 <code>g0</code> 和 <code>gsignal</code> 分別是怎麼來的？如何生成或指派的？</li>
+<li>moduledata 有沒有別的意思？就是 symbol table 而已嗎？</li>
+<li>在 <code>heap.go</code> 裡面看到很多 heap 的管理都有強調<strong>不能使用 heap 來管理 heap</strong>，這如何作到？</li>
+<li>記憶體初始化的細節？</li>
+<li>亂數為何需要在程序啟動的早期設置？ <code>fastrand</code> 的用意為何？ 為何選定特殊的魔術數字 <code>1597334677</code>？</li>
+<li>stackguard 顧名思義是 stack 的保護機制，GO 如何實作這個功能？</li>
+<li>GC 如何影響 <code>m</code> 與 <code>g</code> 的運作？</li>
+<li><code>g</code> 和 <code>p</code> 之間的關係？</li>
+<li>為什麼 maps 要在 <code>alginit</code> 之後才能用？</li>
+<li>atomic 系列函式是如何實作的？</li>
+<li>常常看到註解內有 <code>//go:nosplit</code> 這種實際上類似給編譯器的 hint，運作機制是？</li>
+<li>為什麼 windows 不用相關機制來處理參數？windows 還是可以有命令列程式吧？</li>
+<li><code>gostringnocopy</code> 函式裡面有一些魔幻的手法在轉換結構體與 <code>string</code> 型別變數，後面的指標機制怎麼實作？</li>
+<li>為什麼環境變數的陣列建構時不用 <code>gostringnocopy</code>？</li>
+<li>兩個選項一起設置的話，印出的部份會互相干擾，這難道不是 bug 嗎？</li>
+<li><code>schedtrace</code> 真的有實際用途嗎？用在何處？</li>
+<li>為什麼 <code>workbuf</code> 的大小綁定 2K 呢？</li>
+<li><code>allp</code> 的處理是看到了，那 <code>allm</code> 和 <code>allg</code> 呢？</li>
+<li><code>rbp</code> 在剛進入 <code>newproc</code> 函式時是 0，合理嗎？</li>
+<li>xmm0 的操作是怎麼回事？</li>
+<li>為什麼不能直接傳入 <code>func1</code> 就好呢？這樣不是還能省一個記憶體的存取嗎？</li>
+<li>為什麼要傳 <code>newproc</code> 的回傳位址給將由無名函式呼叫的 <code>newproc1</code> 呢？</li>
+<li><code>acquirem</code> 的註解為何是與 <code>p</code> 是否被存取有關？心理需要更好的 model 來理解這些 GO 語言的抽象物件了...</li>
+<li><code>acquirem</code> 和 <code>releasem</code> 的語意應該要有 atomic 的感覺，為何這裡不需要呢？GO 語言有什麼確保不會發生 race condition 的假設？</li>
+<li>goroutine 被認為輕量的理由？</li>
+<li>執行期排程器的整個運作中，一個 M 是如何面對非同步事件或是阻塞型的系統呼叫？</li>
+<li>為何現在偏好的 approach 就不會有空轉？還是會有額外的 M 生成，並且在空轉找不到工作之後還是得休眠不是嗎？</li>
+<li><code>gfget</code> 到底有沒有可能挨餓？</li>
+<li>在 <code>gfget</code> 之中，從 gFree.stack 拿到 G 的情況下，那兩種不同的 flag 是什麼？什麼時候可以使用相關功能？</li>
+<li><code>malg</code> 使用 <code>new</code> 關鍵字配置所需的記憶體，相關機制為何？所取得的的記憶體應該會在 heap 上。</li>
+<li>關於 <code>mcache</code>，為何註解說是 per-P 結構，這裡卻是由 M 來提取呢？</li>
+<li>兩個 <code>stackGuard</code> 分別有什麼用呢？註解中是有解釋，但是還是有點抽象。</li>
+<li>write barrier 的詳細定義、功能，與使用的情境。</li>
+<li>SIGSEGV 是什麼時候註冊好的？</li>
+<li>為什麼函式名稱裡面會有特殊字元？（如 <code>runtime·goexit</code>）是不是這種函式就無法在 gdb 裡面定位？</li>
+<li><code>labels</code> 成員代表的意義？profiling 的使用方法？</li>
+<li>為什麼 <code>runtime.main</code> 會有特殊的待遇，不被算在系統 goroutine 裡面？</li>
+<li>tracer 的使用方法？</li>
+<li>GO 與 gdb 的聯動還算可用，也是 binutils 處理的轉換嗎？</li>
+<li><code>go:nosplit</code> 具體來說是在哪些條件下必須要下？</li>
+<li>什麼才算是系統堆疊？</li>
+<li>stack growth prologue 具體來說是指什麼？</li>
+<li>看到很多註解的部份提到必須要有 P 才能下 write barrier，他們的關聯是什麼？</li>
+<li><code>getg</code>、<code>getcaller*</code> 函式好像都沒有本體，所以應該是 compiler 生成的？相關的程式在哪裡呢？</li>
+<li><code>minit</code> 函式前得住解說不能配置記憶體是什麼意思？</li>
+<li><code>getg().m.procid</code> 賦值自 <code>gettid</code>，為什麼說是為了 debugger 的？</li>
+<li>接收到 signal 的時候，GO 語言的處理方式是？</li>
+<li>之前也曾經為此混亂過，總覺得有時候註解的文意裡面不會太區分 M、P 的概念。之後應該了解一下 <code>wakep</code> 函式與 <code>newm</code> 函式。</li>
+<li>之前也問過了，可是為什麼函式指標要傳程式碼的指標的指標？</li>
+<li>到底為什麼會有 <code>xxx1</code> 這種函式命名法？</li>
+<li>GO 語言的 rwmutex 機制是什麼？</li>
+<li>系統監視者函式具體來說是作什麼的？</li>
+<li>之前也問過了，可是為什麼函式指標要傳程式碼的指標的指標？</li>
+<li>什麼叫做主要 goroutine？主要 OS thread？難道不是 <code>runtime.g0</code> 和 <code>runtime.m0</code> 嗎？</li>
+<li><code>defer</code> 和 <code>go</code> 都是很常用的非同步關鍵字。它們生效的機制是什麼？（使用 gdb 已知 <code>go</code> 可能會觸發 <code>runtime.newproc</code>）</li>
+<li>為什麼 <code>main.main</code> 會沒辦法被 linker 定位？還是說 GO 的連結方式有順序性，所以才強調 <strong>when laying down the runtime</strong>？</li>
+</ul>
+<h3 id="檢討"><a class="header" href="#檢討">檢討</a></h3>
+<p>這是第三次參賽了。有別於 2016 的<a href="https://ithelp.ithome.com.tw/users/20103524/ironman/1086">跨界的追尋：trace 30個基本 Linux 系統呼叫</a>與 2017 的<a href="https://ithelp.ithome.com.tw/users/20103524/ironman/1348">與妖精共舞：在 RISC-V 架構上使用 GO 語言實作 binutils 工具包</a>，當時的每一日就像是用競走甚至慢跑一樣的速度前進，非常疲累；這次更多的是帶著自助旅遊的心情，對於能夠理解的部份就深入一些去追蹤，搜索過資料之後無法理解的部份也不強求，相對之下是比較輕鬆的。所以一開始擬的龐大計畫看起來也無須羞赧，有些在這一趟獲得的，就會有一些在下一趟獲得。</p>
+<p>整體來說，GO 語言的 Hello World 程式與所有其他程式一樣得從 CPU/作業系統相依的部份開始，由於內建 goroutine 這種輕量級的抽象執行單位而必需要精確控管 context，為了控管 context 又必須在仍非常早期的時候注意記憶體的狀況，比方說我們四處看到的那些編譯器選項： stack 是否可以被分割、該函式是否不能使用 write barrier 等等。之後的初始化，大多還是 G-M-P 三項之力在協調的。單就 Hello World，我們看到的還不夠多，還有許多其他的特色完全沒有觸碰到。</p>
+<p>但那豈不是讓人更興奮嗎？我想，每一年度的鐵人賽不只是這 30 天的衝刺而已；它理所當然地包含事前充滿期待的計畫，以及事後的滿足、懊悔（XD）與不甘心等等混雜的情感，以及對於明年的自己再度興起的期待。連結起來，就是身為技術人穿越時間與自己對話、學習的過程吧。</p>
+<p>各位讀者，祝福你們都能夠在這個系列中獲得自己想要的東西，若是有不足的部份也歡迎你們批評指教。無論如何，我們明年再見！</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="day-29.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="day-29.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

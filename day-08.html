@@ -1,0 +1,362 @@
+<!DOCTYPE HTML>
+<html lang="zh-TW" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Day 08 第八天：進入 schedinit - 入吾 Go 中：走訪 Go 語言內部實作</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">入吾 Go 中：走訪 Go 語言內部實作</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://ithelp.ithome.com.tw/users/20103524/ironman/2589" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="第八天進入-schedinit"><a class="header" href="#第八天進入-schedinit">第八天：進入 schedinit</a></h1>
+<ul>
+<li>Day: 8</li>
+<li>發佈日期: 2019-09-23</li>
+<li>原文: <a href="https://ithelp.ithome.com.tw/articles/10219464">https://ithelp.ithome.com.tw/articles/10219464</a></li>
+</ul>
+<h3 id="前情提要"><a class="header" href="#前情提要">前情提要</a></h3>
+<hr />
+<p>昨日從一支 GO 語言程式的源頭往下看，在初始化參數（<code>runtime.args</code>）和初始化來自作業系統的資訊（<code>runtime.osinit</code>）方面有個簡單的認識。按照順序的話今天要來看排程初始化（<code>runtime.schedinit</code>）。</p>
+<h3 id="runtimeschedinit-在-srcruntimeporcgo-之中"><a class="header" href="#runtimeschedinit-在-srcruntimeporcgo-之中"><code>runtime.schedinit</code> 在 <code>src/runtime/porc.go</code> 之中</a></h3>
+<hr />
+<p>最一開始就有點打啞謎的味道，請看：</p>
+<pre><code class="language-go">// The bootstrap sequence is:
+//
+//  call osinit
+//  call schedinit
+//  make &amp; queue new G
+//  call runtime·mstart
+//
+// The new G calls runtime·main.
+func schedinit() {
+    // raceinit must be the first call to race detector.
+    // In particular, it must be done before mallocinit below calls racemapshadow.
+    _g_ := getg()
+    if raceenabled {
+        _g_.racectx, raceprocctx0 = raceinit()
+    }
+</code></pre>
+<p>註解部份是我們在組語裡面也看見的順序，昨日已經看完了 <code>osinit</code> 的部份。但是這裡就像是小說看到一半突然看見新角色一樣，但是作者又讓他出場得理所當然，也就是這裡的 <code>G</code> 或者 <code>g</code>。這到底是何許人也？先不停在這裡空轉，看看可以閱讀的部份吧！</p>
+<p>進到函式裡面的註解，提到說第一個要呼叫的是 <code>raceinit</code>，這個是負責一個叫做 <strong>race 偵測器</strong> 的機制；顧名思義，大概是說 GO 語言的天生特性導致高度的<strong>並行性（concurrency）</strong>，但整個語言的 runtime 還是想要設法維護程式運行的邏輯不脫軌，因此有這個 race condition 的偵測模組。註解並且強調這個一定要在 <code>mallocinit</code> 呼叫 <code>racemapshadow</code>（抱歉，又是另一個陌生角色）之前做完才行。</p>
+<blockquote>
+<p>有沒有發現一件有趣的事？GO 語言的慣例命名法則是<strong>駝峰式</strong>，舉個例子大概是 <strong><code>thisIsForExample</code></strong> 這樣，但是這裡初始化階段我們看到的是很罕見的一種命名法：不更動大小寫直接串接。若是 Linux 的話也應該至少變成 <code>sched_init</code>、<code>race_init</code> 之類。</p>
+</blockquote>
+<h4 id="raceinit"><a class="header" href="#raceinit"><code>raceinit</code></a></h4>
+<p>雖然 <code>raceenabled</code> 的判定與 <code>raceinit</code> 的呼叫在第一行的 <code>getg</code> 之後，但既然註解已經先提到了，就先來看看它在哪裡好了。事實上，這些 race 功能相關的內容被定義在 <code>src/runtime/race0.go</code> 裡面，而且其實是關閉的！</p>
+<pre><code class="language-go">...
+// license that can be found in the LICENSE file.
+
+// +build !race
+
+// Dummy race detection API, used when not built with -race.
+</code></pre>
+<p>在沒有附加 <code>-race</code> 的建置過程的話，這些功能就都不會被用到了。那我們也就暫且跳過。</p>
+<h4 id="g"><a class="header" href="#g"><code>G</code>？</a></h4>
+<p>然後第一行程式碼，披頭就來了一個 <code>_g_ := getg()</code>！那，深入 <code>getg()</code> 的話應該就可以知道 G 是什麼了吧，它定義在 <code>src/runtime/stubs.go</code>裡面，可是...</p>
+<pre><code class="language-go">// getg returns the pointer to the current g.
+// The compiler rewrites calls to this function into instructions
+// that fetch the g directly (from TLS or from the dedicated register).
+func getg() *g
+</code></pre>
+<p>下面沒有了！趕緊看註解：<code>getg</code> 取得<strong>當前的 <code>g</code></strong> 並回傳，可是瑞凡，這不是廢話嗎！<strong>編譯器會將這個呼叫改寫成直接抓取 g 的指令</strong>，比方說從 TLS 或是特定的暫存器裡面。這些人怎麼可以這樣理所當然的 G 來 G 去，卻不告訴我們 G 是什麼呢！？幸好餘光瞄到這個下面的另外一個呼叫 <code>mcall</code>，它的註解很長，但是提到更多新角色比方說是 <code>g0</code>、<code>gsignal</code>，而且還有一個關鍵句：</p>
+<pre><code class="language-go">// mcall switches from the g to the g0 stack and invokes fn(g),
+// where g is the goroutine that made the call.
+...
+</code></pre>
+<blockquote>
+<p>TLS 是 <strong>Thread Local Storage</strong>，執行緒專用的儲存空間</p>
+</blockquote>
+<p>也就是說（請注意這是筆者與各位讀者同步學習時的猜測，很可能在日後證明有錯）這裡的 <code>g</code> 指的應該就是 goroutine 這種** GO 語言原生的執行緒**的其中一個，<code>g0</code> 可能是某個最特定用途的或是 main thread 之類的概念，gsignal 也不難猜想，因為除了序列執行的正常 context 之外本來就會有非同步的 signal context。而這裡的 <code>fn(g)</code> 這種作法，也許就是綁定 <code>g</code> 執行緒的特殊函式？還是說 <code>fn</code> 是指某個函式？不過沒關係這個當作之後的考察目標。</p>
+<h4 id="回到-getg"><a class="header" href="#回到-getg">回到 <code>getg</code></a></h4>
+<p>我們可以想像 goroutine 可能也是一個結構體，裡面包含成員變數與函數，所以會有 <code>getg</code> 這種呼叫。因為他真正的內容已經被編譯器代換，並且在 <code>getg</code> 所在的檔案名稱（stubs）可以得知，那只是一個空殼。我們只能去組語檔案挖挖看了。一樣引用 <code>objdump -d</code> 工具會發現，其實根本找不到 <code>getg</code> 這個函式，畢竟註解說的是替換成**存取 TLS 空間或存取專用的暫存器的指令。**不得已，只好看 <code>runtime.schedint</code> 的函式本體：</p>
+<pre><code>0000000000429620 &lt;runtime.schedinit&gt;:
+  429620:   64 48 8b 0c 25 f8 ff    mov    %fs:0xfffffffffffffff8,%rcx
+  429627:   ff ff 
+  429629:   48 3b 61 10             cmp    0x10(%rcx),%rsp
+  42962d:   0f 86 19 02 00 00       jbe    42984c &lt;runtime.schedinit+0x22c&gt;
+  429633:   48 83 ec 60             sub    $0x60,%rsp
+  429637:   48 89 6c 24 58          mov    %rbp,0x58(%rsp)
+  42963c:   48 8d 6c 24 58          lea    0x58(%rsp),%rbp
+  429641:   64 48 8b 04 25 f8 ff    mov    %fs:0xfffffffffffffff8,%rax
+  429648:   ff ff 
+  42964a:   48 89 44 24 38          mov    %rax,0x38(%rsp)
+  42964f:   c7 05 37 29 12 00 10    movl   $0x2710,0x122937(%rip)        # 54bf90 &lt;runtime.sched+0x30&gt;
+  429656:   27 00 00 
+...
+  429843:   00 00 
+  429845:   e8 26 d3 ff ff          callq  426b70 &lt;runtime.throw&gt;
+  42984a:   0f 0b                   ud2    
+  42984c:   e8 7f 49 02 00          callq  44e1d0 &lt;runtime.morestack_noctxt&gt;
+  429851:   e9 ca fd ff ff          jmpq   429620 &lt;runtime.schedinit&gt;
+  429856:   cc                      int3   
+
+</code></pre>
+<p>作為對照，原本這個含是的開頭長成這樣：</p>
+<pre><code class="language-go"> ...
+    _g_ := getg()
+    if raceenabled {
+        _g_.racectx, raceprocctx0 = raceinit()
+    }
+
+    sched.maxmcount = 10000
+
+    tracebackinit()
+    moduledataverify()
+    ...
+</code></pre>
+<p>所以這樣看起來，雖然還不太確定 <code>getg</code> 函式到底被替換成什麼，但是還是可以找到一個參照點，也就是指定 <code>sched.maxmcount</code> 的這個成員變數被指派成 10000，也就是十六進位的 0x2710，所以我們就找到了在 0x42964f 之前，也許都可以說是 <code>getg</code> 函式代換的部份。當然，這麼說並不精確，因為 GO 語言的編譯器很有可能做了很多事情。</p>
+<p>事實上如果真的用 <code>objdump -d</code> 瀏覽看看，會發現很多函式都有共通的起頭，那就是 <strong>GO 語言的 prologue</strong> 形式，大部份都會有像前幾行那樣子的內容。第一行引用的 <code>fs</code> 暫存器正是許多專案用來當作 TLS 的慣例之一。這個指令結束之後取得的東西在 <code>rcx</code> 暫存器中。隨後，<code>rcx</code> 的一個 offset 內容和當前 stack pointer 比較，並包含一個跳轉到後方的 <code>runtime.morestack_noctxt</code> 呼叫，之後再直接轉回 <code>runtime.schedinit</code>，隱含了一個類似遞迴的行為。這個 <code>morestack_noctxt</code> 一樣只有空殼定義在 <code>stubs.go</code> 裡面，本體則是在 <code>src/runtime/asm_amd64.s</code>；不節錄內容，但是這個呼叫常常會在 prologue，也就是<strong>在函式開頭，卻發現 stack 空間不夠的時候被呼叫</strong>。</p>
+<h4 id="更逼近-getg"><a class="header" href="#更逼近-getg">更逼近 <code>getg</code></a></h4>
+<p>也就是說，筆者本來想追的是 <code>getg</code> 函式，這看到的卻是類似 <strong>prologue-epilogue</strong> 對的一般 GO 函式結構而已。於是筆者用了一個比較醜的招式，也就是在 <code>_g_ := getg()</code> 前後附上一個 <code>print</code> 函式夾起來，結果編譯出來是：</p>
+<pre><code>  429641:    e8 8a df ff ff          callq  4275d0 &lt;runtime.printlock&gt;
+  429646:   48 8d 05 47 ad 08 00    lea    0x8ad47(%rip),%rax        # 4b4394 &lt;go.string.*+0x34&gt;
+  42964d:   48 89 04 24             mov    %rax,(%rsp)
+  429651:   48 c7 44 24 08 02 00    movq   $0x2,0x8(%rsp)
+  429658:   00 00 
+  42965a:   e8 91 e8 ff ff          callq  427ef0 &lt;runtime.printstring&gt;
+  42965f:   e8 ec df ff ff          callq  427650 &lt;runtime.printunlock&gt;
+
+  429664:   64 48 8b 04 25 f8 ff    mov    %fs:0xfffffffffffffff8,%rax
+  42966b:   ff ff 
+  42966d:   48 89 44 24 38          mov    %rax,0x38(%rsp)
+
+  429672:   e8 59 df ff ff          callq  4275d0 &lt;runtime.printlock&gt;
+  429677:   48 8d 05 16 ad 08 00    lea    0x8ad16(%rip),%rax        # 4b4394 &lt;go.string.*+0x34&gt;
+
+</code></pre>
+<p>中間的兩個空行是筆者安插的以求明顯閱讀。第一個空行以前是比對之後發現的 <code>print</code> 函式的真身，由 <code>printlock</code> 起頭，<code>printunlock</code> 結束，而且會要去某個編譯期決定的記憶體位置撈取所需印出的字串；之後還放治了兩個變數到 stack 裡面，根據格式看來應該是字串起始指標與該字串長度。</p>
+<p>也就是說，<code>getg</code> 函式，也就是呼叫者企圖取得自己所屬的 goroutine 的這個呼叫，在 <code>x86_64</code> 架構裡面是一個暫存器的存取，並將之放置到函式視野的空間裡面。</p>
+<h3 id="疑問"><a class="header" href="#疑問">疑問</a></h3>
+<hr />
+<ul>
+<li>GO 命名的歷史淵源，還有為什麼 runtime 跟大家都不一樣？是否是 linker 之類的工具鏈限制使然？</li>
+<li>goroutine 的構成，顯然是理解 GO 語言的關鍵。 <code>g0</code> 和 <code>gsignal</code> 分別是怎麼來的？如何生成或指派的？</li>
+<li>fn 函式？</li>
+<li>怎麼開啟具備 race 功能的編譯模式？</li>
+</ul>
+<h3 id="本日小結"><a class="header" href="#本日小結">本日小結</a></h3>
+<hr />
+<p>觀看 <code>schedinit</code> 之路一波三折，但是也看到許多有趣的 GO 語言結構；由於 <code>runtime</code> 的真實樣貌有許多透過編譯器解決，因此也有比較多組語的參照。各位讀者，我們明天再會！</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="day-07.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="day-09.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="day-07.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="day-09.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

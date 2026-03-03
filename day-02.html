@@ -1,0 +1,374 @@
+<!DOCTYPE HTML>
+<html lang="zh-TW" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Day 02 第二天：進入 Hello World! - 入吾 Go 中：走訪 Go 語言內部實作</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">入吾 Go 中：走訪 Go 語言內部實作</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://ithelp.ithome.com.tw/users/20103524/ironman/2589" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="第二天進入-hello-world"><a class="header" href="#第二天進入-hello-world">第二天：進入 Hello World!</a></h1>
+<ul>
+<li>Day: 2</li>
+<li>發佈日期: 2019-09-17</li>
+<li>原文: <a href="https://ithelp.ithome.com.tw/articles/10216651">https://ithelp.ithome.com.tw/articles/10216651</a></li>
+</ul>
+<h3 id="前情提要"><a class="header" href="#前情提要">前情提要</a></h3>
+<hr />
+<p>昨日開場介紹了 GO 語言以及本系列的目標，也用最懶人的方式編好了一個實驗環境，但是那個環境在哪裡呢？作日最後的進度是：</p>
+<pre><code>$ GOOS=Linux GOARCH=amd64 ./make.bash
+</code></pre>
+<p>當前目錄是才剛透過 <code>git clone</code> 下來的 <code>go</code> 目錄。這個建置指令成功之後，產出將會存在於上一層目錄下的 <code>go-linux-amd64-bootstrap</code>。GO 語言的標準函式庫與工具包都會在那底下。</p>
+<blockquote>
+<p>本系列之後的文章中，都會用 <code>$GOROOT</code> 來代表這個目錄。</p>
+</blockquote>
+<blockquote>
+<p>記得把 <code>$GOROOT/bin</code> 加到 <code>PATH</code> 環境變數裡面，否則無法使用編輯出來的 <code>go</code> 指令喔！</p>
+</blockquote>
+<h3 id="範例-hello-world-程式"><a class="header" href="#範例-hello-world-程式">範例 Hello World 程式</a></h3>
+<hr />
+<p>那麼我們就直接來追蹤最簡單的程式：Hello World吧！</p>
+<pre><code class="language-go">package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello World!")
+}
+</code></pre>
+<blockquote>
+<p>至於程式碼追蹤的環境架設該怎麼辦呢？筆者自己是使用 <a href="https://github.com/fatih/vim-go">vim-go</a> 這個工具，因為它同時具備良好的<a href="https://github.com/fatih/vim-go-tutorial">教學文件</a>，對於熟悉 vim+cscope 開發環境的人來說非常容易上手。如果各位讀者有需求，請留言於下，筆者會擇日安插相關的內容。</p>
+</blockquote>
+<p>建置且運行指令如下：</p>
+<pre><code>$ go build hw.go
+$ ./hw
+Hello World!
+
+</code></pre>
+<h3 id="fmtprintln-函式"><a class="header" href="#fmtprintln-函式">fmt.Println 函式</a></h3>
+<hr />
+<blockquote>
+<p>若讀者成功設定了自動跳轉功能，你可能會發現跳轉的目的地是系統使用的 GO 語言環境，而不是我們在前一日建置得到的環境，這該怎麼辦呢？答案是 <code>GOROOT</code> 環境變數。筆者的環境中，就是將 <code>GOROOT</code> 指定為 <code>/home/xxxx/go-linux-amd64-bootstrap</code>。</p>
+</blockquote>
+<p>函式 <code>Println</code> 屬於函式庫 <code>fmt</code>，在 <code>$GOROOT/src/fmt/print.go</code> 之中：</p>
+<pre><code class="language-go">// Println formats using the default formats for its operands and writes to standard output.
+// Spaces are always added between operands and a newline is appended.
+// It returns the number of bytes written and any write error encountered.
+func Println(a ...interface{}) (n int, err error) {                                                                                    
+        return Fprintln(os.Stdout, a...)
+}
+</code></pre>
+<p>輸入是不定個萬用型別的參數，輸出則是印出的位元組數與一個錯誤值。我們可以看見這單純是一個 <code>Fprintln</code> 的 wrapper，就和 C 語言中的 <code>printf</code> 和 <code>fprintf</code> 的關係類似，並將輸出方向導向 <code>os.Stdout</code> 去。</p>
+<h3 id="osstdout-變數"><a class="header" href="#osstdout-變數">os.Stdout 變數</a></h3>
+<hr />
+<p>筆者本來想跳過這個顯而易見代表著標準輸出的東西，畢竟，這有什麼大不了的？C 函式庫就已經把 <code>FILE* stdout</code> 定義起來了。但是進去看之後發現，這個變數被定義為：</p>
+<pre><code class="language-go">// Stdin, Stdout, and Stderr are open Files pointing to the standard input,
+// standard output, and standard error file descriptors.
+//          
+// Note that the Go runtime writes to standard error for panics and crashes;
+// closing Stderr may cause those messages to go elsewhere, perhaps
+// to a file opened later.
+var (       
+        Stdin  = NewFile(uintptr(syscall.Stdin), "/dev/stdin")
+        Stdout = NewFile(uintptr(syscall.Stderr), "/dev/stderr")
+        Stderr = NewFile(uintptr(syscall.Stdout), "/dev/stderr")
+)           
+</code></pre>
+<p>簡單追一下 <code>NewFile</code> 這個呼叫，後面東西也是蠻多的（畢竟函式都叫做 <code>NewFile</code>了），覺得顯然不對！像是被閃電擊中一樣。如果每一次呼叫 <code>Println</code> 就必須要跑一次這一連串的過程，那怎麼會合理呢？</p>
+<p>對於 Unix-like 系統來講，標準輸出就是對應到 <strong>file descriptor</strong> 的 <strong>1</strong> 去而已，理論上將檔案描述子對應到一個檔案物件的功夫應該只要作一次就夠了才對。但是按照這份程式碼字面上看起來，就像是每一次呼叫 <code>fmt.Println</code> 就會呼叫到這一些 <code>NewFile</code> 一樣。怎麼回事？</p>
+<h4 id="使用-gdb-動態追蹤"><a class="header" href="#使用-gdb-動態追蹤">使用 gdb 動態追蹤</a></h4>
+<p>為了解決這個困擾，筆者決定還是先引入 gdb 除錯工具，觀察這個 <code>NewFile</code> 函式到底是誰來呼叫的。</p>
+<blockquote>
+<p>對於 gdb 不熟的讀者，有問題請多發問喔！用起來沒那麼難，筆者也會附上最基本的解說。</p>
+</blockquote>
+<p>首先我們直接把程式叫起來監控（<code>-d</code> 是為了讓 <code>gdb</code> 能夠抓到非使用者撰寫的、函式庫部份的索引）：</p>
+<pre><code>$ gdb ./hw -d $GOROOT
+</code></pre>
+<p>如果你的 <code>gdb</code> 跳出一些訊息類似</p>
+<pre><code>...
+Reading symbols from hw...done.
+warning: File "/home/noner/FOSS/2019ITMAN/go/src/runtime/runtime-gdb.py" auto-loading has been declined by your `auto-load safe-path' set to "$debugdir:$datadir/auto-load".
+To enable execution of this file add
+        add-auto-load-safe-path /home/noner/FOSS/2019ITMAN/go/src/runtime/runtime-gdb.py
+line to your configuration file "/home/noner/.gdbinit".
+To completely disable this security protection add
+        set auto-load safe-path /
+line to your configuration file "/home/noner/.gdbinit".
+For more information about this security protection see the
+"Auto-loading safe path" section in the GDB manual.  E.g., run from the shell:
+        info "(gdb)Auto-loading safe path"
+
+</code></pre>
+<p>那麼就按照他的指示給予 gdb 所需要的 python script 路徑：</p>
+<pre><code>(gdb) add-auto-load-safe-path /home/noner/FOSS/2019ITMAN/go/src/runtime/runtime-gdb.py
+</code></pre>
+<p>又，<code>NewFile</code> 該怎麼找呢？對於使用 gdb 除錯 C 的朋友來說這裡有一個需要注意的部份，那就是 GO 語言有函式庫的機制，所以內部的函式的<strong>全域名稱</strong>會在函式名前方冠上函式庫名稱。所以我們想要關注的就是 <code>os.NewFile</code> 和 <code>main.main</code> 兩個函式的先後順序。（b 指令代表我們想要在哪個位置設定中斷點）</p>
+<pre><code>(gdb) b os.NewFile 
+Breakpoint 1 at 0x462730: file /home/noner/FOSS/2019ITMAN/go/src/os/file_unix.go, line 81.
+(gdb) b main.main 
+Breakpoint 2 at 0x483f60: file /home/noner/FOSS/2019ITMAN/go_internal/hw.go, line 8.
+(gdb) run
+
+</code></pre>
+<p>至此，程式開始運行。可以使用</p>
+<pre><code>(gdb) c
+</code></pre>
+<p>代表 <code>continue</code> 指令繼續程式本身的執行流程。</p>
+<h4 id="實驗結果"><a class="header" href="#實驗結果">實驗結果</a></h4>
+<p>結果，<code>os.NewFile</code> 早在 <code>main.main</code> 執行之前就已經執行到了，因為 <code>os.NewFile</code> 先停了下來。如果使用 <code>backtrace</code> 或是 <code>bt</code> 指令去觀察 <code>os.NewFile</code> 如何被執行到，則會發現：</p>
+<pre><code>Thread 1 "hw" hit Breakpoint 1, os.NewFile (fd=&lt;optimized out&gt;, name=..., ~r2=&lt;optimized out&gt;)
+    at /home/noner/FOSS/2019ITMAN/go/src/os/file_unix.go:81
+81      func NewFile(fd uintptr, name string) *File {
+(gdb) bt
+#0  os.NewFile (fd=&lt;optimized out&gt;, name=..., ~r2=&lt;optimized out&gt;) at /home/noner/FOSS/2019ITMAN/go/src/os/file_unix.go:81
+#1  0x0000000000462fe9 in os.init () at /home/noner/FOSS/2019ITMAN/go/src/os/file.go:59
+#2  0x0000000000483d65 in fmt.init () at &lt;autogenerated&gt;:1
+#3  0x0000000000484015 in main.init () at &lt;autogenerated&gt;:1
+#4  0x00000000004284eb in runtime.main () at /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:189
+#5  0x000000000044ffc1 in runtime.goexit () at /home/noner/FOSS/2019ITMAN/go/src/runtime/asm_amd64.s:1340
+#6  0x0000000000000000 in ?? ()
+
+</code></pre>
+<p>這個指令的效果是能夠看見<strong>執行到目前為止的 call stack</strong>，所以顯然是類似建構子的東西幫助我們在 <code>main</code> 函式之前將它初始化了。相對的，當我們後來在 <code>main.main</code> 停下來之時（<code>d</code> 指令代表刪除我們設定的第一個中斷點）</p>
+<pre><code>(gdb) d 1
+(gdb) c
+Continuing.
+
+Thread 1 "hw" hit Breakpoint 2, main.main () at /home/noner/FOSS/2019ITMAN/go_internal/hw.go:5
+5       func main() {
+(gdb) bt
+#0  main.main () at /home/noner/FOSS/2019ITMAN/go_internal/hw.go:5
+
+</code></pre>
+<p>這裡顯示的歷史卻是 <code>main</code> 函式沒有與建構子分享任何共同的祖先。這可能是事實，也可能僅僅是 gdb 的能力有限，目前對於筆者來說也是個謎。</p>
+<h3 id="本日小結"><a class="header" href="#本日小結">本日小結</a></h3>
+<hr />
+<ul>
+<li><code>fmt.Println</code> 是個 wrapper</li>
+<li>使用 gdb 工具輔助追蹤，且發現到 GO 語言隱式建構子的存在。</li>
+</ul>
+<p>各位讀者，我們明日再會！</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="day-01.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="day-03.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="day-01.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="day-03.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

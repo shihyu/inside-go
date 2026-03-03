@@ -1,0 +1,382 @@
+<!DOCTYPE HTML>
+<html lang="zh-TW" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Day 07 第七天：瀏覽系統相依的初始化 - 入吾 Go 中：走訪 Go 語言內部實作</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">入吾 Go 中：走訪 Go 語言內部實作</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://ithelp.ithome.com.tw/users/20103524/ironman/2589" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="第七天瀏覽系統相依的初始化"><a class="header" href="#第七天瀏覽系統相依的初始化">第七天：瀏覽系統相依的初始化</a></h1>
+<ul>
+<li>Day: 7</li>
+<li>發佈日期: 2019-09-22</li>
+<li>原文: <a href="https://ithelp.ithome.com.tw/articles/10219216">https://ithelp.ithome.com.tw/articles/10219216</a></li>
+</ul>
+<h3 id="前情提要"><a class="header" href="#前情提要">前情提要</a></h3>
+<hr />
+<p>昨日宣告重啟 Hello World 程式，但是是那些我們所寫的 <code>main</code> 函式以外的部份。目前追蹤到作業系統與架構相依的部份結束，何時會迎來 GO 語言的通用部份？</p>
+<h3 id="再次引用-gdb"><a class="header" href="#再次引用-gdb">再次引用 gdb</a></h3>
+<hr />
+<p>既然靜態的程式碼追蹤有點困難，那反正我們也都已經知道一個 GO 程式的切入點在哪裡，那麼不是從那個切入點開始慢慢單步執行就可以了嗎？所以筆者這裡打算使用這個方式，還可以順便透過 gdb 解析的除錯訊息不只了解執行的函式，也要知道那些函式在整個 GO 語言專案中的結構與位置。</p>
+<p>那麼就來開啟 gdb 吧。</p>
+<pre><code>(gdb) b *0x451760
+Breakpoint 1 at 0x451760: file /home/alankao/2019Fe/go/src/runtime/rt0_linux_amd64.s, line 8.
+(gdb) run
+Starting program: /home/alankao/2019Fe/hw 
+
+Breakpoint 1, _rt0_amd64_linux () at /home/alankao/2019Fe/go/src/runtime/rt0_linux_amd64.s:8
+8               JMP     _rt0_amd64(SB)
+(gdb) s
+_rt0_amd64 () at /home/alankao/2019Fe/go/src/runtime/asm_amd64.s:15
+15              MOVQ    0(SP), DI       // argc
+(gdb)
+16              LEAQ    8(SP), SI       // argv
+(gdb) 
+17              JMP     runtime·rt0_go(SB)
+(gdb)
+
+</code></pre>
+<p>是的，這個部份昨天就已經看過，也就是到達 <code>runtime.rt0_go</code> 函式之前的過程。其中呼叫前的兩個暫存器操作也一如筆者預期的是程式獲得的來自作業系統的訊息：<code>argc</code> 以及 <code>argv</code>。</p>
+<h4 id="runtimert0_go--對不起實在是太繁瑣了"><a class="header" href="#runtimert0_go--對不起實在是太繁瑣了"><code>runtime.rt0_go</code> ...... 對不起，實在是太繁瑣了！</a></h4>
+<p>筆者本來想按照順序流水帳的介紹，以達成地毯式的通盤了解，但顯然這樣也是錯誤的抽象層選擇。進入 <code>runtime.rt0_go</code> 之後有一些專屬於 Intel 的檢查過程，實在是繁瑣到筆者直接按緊了 enter 鍵（這在 gdb 的使用情境裡代表重複上一個指令，也就是不斷的下一步），片刻之後才突然印出 Hello World 中止。</p>
+<p>所以還是鎖定感興趣的部份好了。回到 <code>src/runtime/asm_amd64.s</code> 之中，可以閱讀片段的註解來理解那些檢查的區段，但是筆者最感興趣的是以下的幾個呼叫（<code>CALL</code> 組語指令），按照順序是</p>
+<ul>
+<li><code>runtime.args</code></li>
+<li><code>runtime.osinit</code></li>
+<li><code>runtime.schedinit</code></li>
+</ul>
+<p>這三個顯然是初始化函式？繼續看下去的話：</p>
+<ul>
+<li><code>runtime.newproc</code>：這個呼叫之前似乎有取得 <code>main</code> 函式的起始位址。</li>
+<li><code>runtime.mstart</code>：這個開始之後，就啟動了數個 thread，然後印出 Hello World 結束程式了。</li>
+</ul>
+<p>之前曾經提過 GO 語言執行檔的 symbol 處理方式是將<strong>函式庫名稱</strong>與<strong>函式名稱</strong>以句點連結起來，但是顯然有些如 <code>main.init</code> 這類的就是 GO 在編譯之後生成出來的，從開發者的角度 <code>main</code> 函式庫就只有我們提供的 <code>main</code> 函式而已。那麼這裡的五個呼叫呢？</p>
+<p>這裡的五個呼叫，除了 <code>osinit</code> 牽涉到不同的作業系統而有許多函式實體在不同檔案之外，其他的都存在一份於 <code>runtime</code> 函式庫中，也就是整個 GO 專案的 <code>src/runtime</code> 資料夾底下。我們就來看看吧！</p>
+<h4 id="runtimeargs"><a class="header" href="#runtimeargs"><code>runtime.args</code></a></h4>
+<p>這個函式顧名思義是要處理傳入的參數，存在於 <code>src/runtime/runtime1.go</code> 之中：</p>
+<pre><code class="language-go">func args(c int32, v **byte) {
+        argc = c 
+        argv = v 
+        sysargs(c, v)
+}
+</code></pre>
+<p><code>argc</code> 與 <code>argv</code> 存在於整個 <code>runtime</code> 函式庫的命名空間底下，所以理論上應該可以使用 <code>runtime.argc</code> 和 <code>runtime.argv</code> 之類的方法來存取；**但是實際上不行！**直接玩玩看下面這個範例的話：</p>
+<pre><code class="language-go">package main
+
+import (
+    "fmt"
+    "runtime"
+)
+
+func main() {
+    fmt.Println("Hello World!")
+    fmt.Println(runtime.argv)
+}
+</code></pre>
+<p>在編譯過程中就會報錯：</p>
+<pre><code>$ go build hw.go
+# command-line-arguments
+./hw.go:10:14: cannot refer to unexported name runtime.argv
+./hw.go:10:14: undefined: runtime.argv
+
+</code></pre>
+<p>也難怪沒有看過這樣子的用法。</p>
+<p><code>sysargs</code> 又是什麼樣的函式呢？簡單來說就是<strong>把作業系統給予的空間好好利用出來</strong>的處理過程。作業系統不會只有吝嗇的給<strong>參數數量</strong>與<strong>參數字串陣列</strong>，通常程式還會預期自己能夠透過<strong>環境變數</strong>來判斷所處環境，更進階的用法還有一個<strong>擴增向量（Auxilary Vector，通常簡寫為auxv）</strong>。</p>
+<blockquote>
+<p>擴增向量通常都用來作些什麼呢？各位讀者不妨試試看這個指令：<code>LD_SHOW_AUXV=1 ls</code>，可以看到 dynamic linker 印出的訊息喔！</p>
+</blockquote>
+<p>總之，這個函式在 <code>src/runtime/os_linux.go</code> 裡面：</p>
+<pre><code class="language-go">func sysargs(argc int32, argv **byte) {
+    n := argc + 1
+
+    // skip over argv, envp to get to auxv
+    for argv_index(argv, n) != nil {
+        n++
+    }
+
+    // skip NULL separator
+    n++
+
+    // now argv+n is auxv
+    auxv := (*[1 &lt;&lt; 28]uintptr)(add(unsafe.Pointer(argv), uintptr(n)*sys.PtrSize))
+    if sysauxv(auxv[:]) != 0 {
+        return
+    }
+    // In some situations we don't get a loader-provided
+    // auxv, such as when loaded as a library on Android.
+    // Fall back to /proc/self/auxv.
+    ...
+</code></pre>
+<p>在筆者引用的區段中，可以見到下半都是針對擴增向量的處理；一開始是用 <code>sysauxv</code> 去設法撈取 loader 給予的內容，而若沒有取得的話，設法從<code>/proc/self/auxv</code> 這個特殊的系統檔案取得。</p>
+<h4 id="這些東西長什麼樣子"><a class="header" href="#這些東西長什麼樣子">這些東西長什麼樣子？</a></h4>
+<p>一般來說想要偷看記憶體裡面的資訊，只要將之印出來就好。然而，這時候顯然初始化步驟都還沒走完，應該是沒有辦法使用 <code>fmt</code> 函式庫的；若要深究這時候可以使用的其他函式庫，看起來只有</p>
+<pre><code class="language-go">import (
+    "runtime/internal/sys"
+    "unsafe"
+)
+</code></pre>
+<p>顯然不包含 <code>fmt</code>。前者筆者不確定是什麼東西，已經紀錄在疑問章節之中，後者則是在第一個迴圈呼叫的 <code>argv_index</code> 小函式裡面以及 <code>auxv</code> 變數的生成過程中使用，意指可能不安全的指標存取，也先留待後日研究。</p>
+<blockquote>
+<p>光是引用 "fmt" 函式庫就會造成編譯困難，各位讀者可以試試：修改 <code>src</code> 資料夾底下的程式碼之後，執行 <code>./make.bash</code>。</p>
+</blockquote>
+<p>理論上這裡可以使用 gdb 去看執行相應區塊時的位址內容，也可使用 <code>print</code> 函數。相對應的使用方法在 <code>os_linux.go</code> 裡面很多，就不細談。</p>
+<h4 id="runtimeosinit"><a class="header" href="#runtimeosinit"><code>runtime.osinit</code></a></h4>
+<p>這個函式也在 <code>src/runtime/os_linux.go</code> 裡面，內容很單純，</p>
+<pre><code class="language-go">func osinit() {   
+        ncpu = getproccount()
+}
+</code></pre>
+<p>也就是說，為 Linux 做的初始化只需要決定有幾顆 CPU 就好。這個 <code>getproccount</code> 函式在同一個檔案內，核心內容是：</p>
+<pre><code class="language-go">...
+        var buf [maxCPUs / 8]byte
+        r := sched_getaffinity(0, unsafe.Sizeof(buf), &amp;buf[0])
+        if r &lt; 0 {
+                return 1
+        }
+        n := int32(0)
+        for _, v := range buf[:r] {
+                for v != 0 {
+                        n += int32(v &amp; 1)
+                        v &gt;&gt;= 1
+                }
+        }
+...
+    return n
+</code></pre>
+<p>這個 <code>sched_getaffinity</code> 是 Linux 專有的系統呼叫。第一個參數給定 <code>0</code> 的時候，會將當前可用的 CPU 核心透過<strong>遮罩</strong>的方式回傳到這裡的 <code>buf</code> 陣列之中。接下來的 for 迴圈也是逐項檢驗內容，並將可用的 CPU 核心數回傳。</p>
+<h3 id="疑問"><a class="header" href="#疑問">疑問</a></h3>
+<hr />
+<ul>
+<li><code>import</code> 關鍵字有時會引用多層結構，為什麼要這樣作？</li>
+<li>常常看見 <code>internal</code> 什麼什麼。<strong>內部的</strong>這個關鍵字的差異是什麼？這些函式庫不都是內部的的嗎？</li>
+<li><code>unsafe</code> 的用途。</li>
+<li><code>sched_getaffinity</code> 並沒有像之前 <code>write</code> 那樣最終導到 <code>Syscall</code> 去。</li>
+</ul>
+<h3 id="本日小結"><a class="header" href="#本日小結">本日小結</a></h3>
+<hr />
+<p>雖然無法如預期那般流水帳地理解進入點，但也是將作業系統初始化之前的部份看完了；接下來的 <code>schedinit</code> 函式將會非常龐大！！！各位讀者，我們明天再會！</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="day-06.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="day-08.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="day-06.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="day-08.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

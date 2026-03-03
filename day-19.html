@@ -1,0 +1,389 @@
+<!DOCTYPE HTML>
+<html lang="zh-TW" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Day 19 第十九天：G 的取得路徑 - 入吾 Go 中：走訪 Go 語言內部實作</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">入吾 Go 中：走訪 Go 語言內部實作</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://ithelp.ithome.com.tw/users/20103524/ironman/2589" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="第十九天g-的取得路徑"><a class="header" href="#第十九天g-的取得路徑">第十九天：G 的取得路徑</a></h1>
+<ul>
+<li>Day: 19</li>
+<li>發佈日期: 2019-10-04</li>
+<li>原文: <a href="https://ithelp.ithome.com.tw/articles/10224649">https://ithelp.ithome.com.tw/articles/10224649</a></li>
+</ul>
+<h3 id="前情提要"><a class="header" href="#前情提要">前情提要</a></h3>
+<hr />
+<p>昨日我們都在爬梳註解與其他資料，企圖從比較鳥瞰的角度去觀察排程器與 GO 的系統模型。</p>
+<h4 id="acquirem-和-releasem在-runtimeruntime1go"><a class="header" href="#acquirem-和-releasem在-runtimeruntime1go"><code>acquirem</code> 和 <code>releasem</code>（在 <code>runtime/runtime1.go</code>）</a></h4>
+<p>由於越想越在意，還是將前天最後的問題拿出來檢討一番：</p>
+<pre><code class="language-go">//go:nosplit
+func acquirem() *m {                                                                                                                    
+        _g_ := getg()
+        _g_.m.locks++
+        return _g_.m
+}     
+      
+//go:nosplit
+func releasem(mp *m) {
+        _g_ := getg()
+        mp.locks--
+        if mp.locks == 0 &amp;&amp; _g_.preempt {
+                // restore the preemption request in case we've cleared it in newstack
+                _g_.stackguard0 = stackPreempt
+        }
+}
+
+</code></pre>
+<p>如擷取片段所示，這兩個函式的命名分明相當具有 atomic 感覺，但是其中實作不是那麼回事。這個 <code>locks</code> 成員變數也只是普通的 <code>int32</code>。但是如果我們回想昨天啃註解啃的那麼辛苦，就可以合理猜想，也許是因為 M (worker thread) 不會同時在加或同時在減的緣故吧。姑且就當作這麼回事好了。</p>
+<h4 id="繼續-newproc1"><a class="header" href="#繼續-newproc1">繼續 <code>newproc1</code></a></h4>
+<p>前面略過一段與檢查參數大小相關的部份，接著：</p>
+<pre><code class="language-go">        _p_ := _g_.m.p.ptr()
+        newg := gfget(_p_)                                                                                                         
+
+        if newg == nil {
+                newg = malg(_StackMin)
+                casgstatus(newg, _Gidle, _Gdead)
+                allgadd(newg) // publishes with a g-&gt;status of Gdead so GC scanner doesn't look at uninitialized stack.
+        }
+
+</code></pre>
+<p>先取得由當前的 <code>_g_</code> 所屬的 M（thread）的 P（context），然後呼叫 <code>gfget</code> 函式取得新的 G。這個新的 G 是什麼東西呢？簡單來說就是從一群閒置的 G 裡面取得的其中一個，為此我們可以觀察 <code>gfget</code> 函式（同樣在 <code>runtime/proc.go</code> 之中）的內部，相當難得的，非常容易讀懂：</p>
+<pre><code class="language-go">func gfget(_p_ *p) *g {     
+retry:                      
+        if _p_.gFree.empty() &amp;&amp; (!sched.gFree.stack.empty() || !sched.gFree.noStack.empty()) {
+                lock(&amp;sched.gFree.lock)
+                // Move a batch of free Gs to the P.
+                for _p_.gFree.n &lt; 32 {
+                        // Prefer Gs with stacks.
+                        gp := sched.gFree.stack.pop()
+                        if gp == nil {
+                                gp = sched.gFree.noStack.pop()
+                                if gp == nil {
+                                        break
+                                }
+                        }   
+                        sched.gFree.n--
+                        _p_.gFree.push(gp)
+                        _p_.gFree.n++
+                }           
+                unlock(&amp;sched.gFree.lock)  
+                goto retry  
+        }
+
+</code></pre>
+<p>也是難得看到一個 C-like 的標籤用法！乍看之下，這個 <code>retry</code> 無論如何是無法避免的，因為只要進入了第一個很長的 <code>if</code> 判斷，之後就必然會走到 <code>goto retry</code> 敘述而重來。也就是說，其實這個反覆重新嘗試的迴圈的中止條件，就是別進入第一個 <code>if</code>。為了翻譯順暢，這裡稍微更動一下順序：</p>
+<ul>
+<li><code>!sched.gFree.stack.empty()</code>：如果 <code>sched.gFree</code>（全域閒置佇列）的 <code>stack</code>（具有 stack 的 G 清單）不為空的話、或者</li>
+<li><code>!sched.gFree.noStack.empty()</code>：如果 <code>sched.gFree</code> 的 <code>noStack</code>（沒有 stack 的 G 清單）不為空的話<br />
+加總起來，就是全域閒置佇列有東西的意思；</li>
+<li><code>_p_.gFree.empty()</code>：如果這個 P 的本地佇列為空<br />
+再統整起來的話就可以理解，這裡是先處理本地為空、全域有閒置 G 的狀況。而且這裡依照具備 stack 與否來區分閒置的 G，以下會看到他們的不同處理方式。</li>
+</ul>
+<p>這一段程式碼還另外有全域的鎖保護整個佇列。如果有得搬的話，這個 P 會不論 stack 有無，總之設法搬到 32 個為止。就算無法搬到 32 個，也許先進入了把全域佇列搬空（且其他 P 也未挹注閒置的 G 到全域佇列）的條件之中並 <code>break</code> 離開 for 迴圈，這樣在解鎖、<code>retry</code> 之後也一定能夠通過 <code>if</code> 判斷式，因為這時候本地端佇列一定有 G。另外，考察 <code>push</code>、<code>pop</code> 等資料結構方法的話，不難發現它們是定義給 <code>gList</code> 這種結構使用的，這裡就不深入。</p>
+<blockquote>
+<p>「<code>retry</code> 之後本地端佇列一定有 G」這句話是不是怪怪的呢？是的，邏輯上來講，有可能全域佇列一開始有東西，但是進去之後才發現被拿光了，這時候就會 break 出來並從 <code>retry</code> 再開始。要是這個狀況一直出現，的確有可能會一直在 <code>retry</code> 標籤反覆。但是實際上如何，筆者也不能很確定；應該還是會有防止 starvation 的機制？</p>
+</blockquote>
+<p>又，相對於這一段從全域到本地的過程，另外也有一個呼叫 <code>gfpurge</code>，做的是完全相反的事：</p>
+<pre><code class="language-go">func gfpurge(_p_ *p) {                     
+        lock(&amp;sched.gFree.lock)            
+        for !_p_.gFree.empty() {           
+                gp := _p_.gFree.pop()      
+                _p_.gFree.n--              
+                if gp.stack.lo == 0 {      
+                        sched.gFree.noStack.push(gp)
+                } else {                   
+                        sched.gFree.stack.push(gp)    
+                }                          
+                sched.gFree.n++            
+        }                                  
+        unlock(&amp;sched.gFree.lock)          
+}
+
+</code></pre>
+<p>這些關於 gList 的資料結構方法可說是簡單明瞭，這裡我們看到一個迴圈重複執行直到這個 P 的本地佇列為空為止，裡面並且有一個分歧條件 <code>if gp.stack.lo == 0</code> 用以作為有無 stack 的依據，分別推進不同的 gList 中。這個 <code>lo</code> 成員變數又是什麼呢？它被定義在 <code>runtime/runtime2.go</code> 之中，</p>
+<pre><code class="language-go">type stack struct {
+        lo uintptr  
+        hi uintptr
+}
+
+</code></pre>
+<p>這其實就是 GO 語言在執行期使用的 stack 的型別，它的空間範圍是從 <code>lo</code> 到 <code>hi</code>。<code>lo</code> 為零的狀況亦即這個變數體本身還沒有被賦值，因此可以說它是沒有 stack 的。</p>
+<p>無論如何，確認本地端有內容之後，就會取得一個 G 並使用。</p>
+<pre><code class="language-go">        gp := _p_.gFree.pop()         
+        if gp == nil {                
+                return nil            
+        }                             
+        _p_.gFree.n--
+
+</code></pre>
+<p>然後，如果它是來自 <code>noStack</code> 部份，就必須幫它初始化；反之的情況下，判斷兩種不同的 flag 來決定是否要額外配置特殊的記憶體。</p>
+<pre><code class="language-go">        if gp.stack.lo == 0 {         
+                // Stack was deallocated in gfput. Allocate a new one.
+                systemstack(func() {  
+                        gp.stack = stackalloc(_FixedStack)
+                })                    
+                gp.stackguard0 = gp.stack.lo + _StackGuard
+        } else {                      
+                if raceenabled {      
+                        racemalloc(unsafe.Pointer(gp.stack.lo), gp.stack.hi-gp.stack.lo)
+                }                     
+                if msanenabled {      
+                        msanmalloc(unsafe.Pointer(gp.stack.lo), gp.stack.hi-gp.stack.lo)
+                }                     
+        }                             
+        return gp
+
+</code></pre>
+<h4 id="再回到-newproc1"><a class="header" href="#再回到-newproc1">再回到 <code>newproc1</code></a></h4>
+<p>從 <code>gfget</code> 離開之後，</p>
+<pre><code class="language-go">        newg := gfget(_p_) 
+        if newg == nil {
+                newg = malg(_StackMin)
+                casgstatus(newg, _Gidle, _Gdead)
+                allgadd(newg) // publishes with a g-&gt;status of Gdead so GC scanner doesn't look at uninitialized stack.
+        }        
+        if newg.stack.hi == 0 {
+                throw("newproc1: newg missing stack")
+        }        
+                 
+        if readgstatus(newg) != _Gdead {
+                throw("newproc1: new g is not Gdead")
+        }
+
+</code></pre>
+<p>在本地與全域佇列都沒有 G 的情況下，出來之後會使用 <code>malg</code> 函式生成一個新的以供使用。</p>
+<h3 id="疑問"><a class="header" href="#疑問">疑問</a></h3>
+<hr />
+<ul>
+<li><code>gfget</code> 到底有沒有可能挨餓？</li>
+<li>在 <code>gfget</code> 之中，從 gFree.stack 拿到 G 的情況下，那兩種不同的 flag 是什麼？什麼時候可以使用相關功能？</li>
+</ul>
+<h3 id="本日小結"><a class="header" href="#本日小結">本日小結</a></h3>
+<hr />
+<p>閒置的 G 如何在全域與本地之間被處理，經過目前為止的這些追蹤，算是比較有點頭緒了。明天我們再繼續看下去吧！</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="day-18.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="day-20.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="day-18.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="day-20.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

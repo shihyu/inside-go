@@ -1,0 +1,401 @@
+<!DOCTYPE HTML>
+<html lang="zh-TW" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Day 21 第二十一天：配置新的 goroutine - 入吾 Go 中：走訪 Go 語言內部實作</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">入吾 Go 中：走訪 Go 語言內部實作</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://ithelp.ithome.com.tw/users/20103524/ironman/2589" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="第二十一天配置新的-goroutine"><a class="header" href="#第二十一天配置新的-goroutine">第二十一天：配置新的 goroutine</a></h1>
+<ul>
+<li>Day: 21</li>
+<li>發佈日期: 2019-10-06</li>
+<li>原文: <a href="https://ithelp.ithome.com.tw/articles/10225300">https://ithelp.ithome.com.tw/articles/10225300</a></li>
+</ul>
+<h3 id="前情提要"><a class="header" href="#前情提要">前情提要</a></h3>
+<hr />
+<p>昨日我們終於確定取得一個新的 G 物件，並且初次見識到 G 的狀態轉移。</p>
+<h4 id="快轉一點點"><a class="header" href="#快轉一點點">快轉一點點</a></h4>
+<p>由於接下來的部份有些雜亂，筆者還是跳過了一些部份，大致交待如下：</p>
+<pre><code class="language-go">         if newg.stack.hi == 0 {
+        ...
+         
+         if readgstatus(newg) != _Gdead {
+        ...
+         
+         totalSize := ...
+         if usesLR {
+        ...
+
+         if narg &gt; 0 {
+        ...
+
+</code></pre>
+<p>第一個條件式剛好就是昨天帶過的內容，新的 G 已經有了 stack 的初始化，因此這裡不可能是未初始化狀態；第二個條件式則是 G 的狀態，已經透過一個比較並交換運算設置成 <code>_Gdead</code>；接下來中間有一段與 stack 相關的變數賦值，這裡先跳過；<code>usesLR</code> 變數的條件在筆者使用的 x86 平台上不成立；<code>narg</code> 是從一開始就一路傳進來至此的參數，在 <code>rt0_go</code> 當中也有註解寫明這個第一次的 <code>newproc</code> 呼叫使用的參數是 0。</p>
+<blockquote>
+<p>坦承以對：其實筆者跳過的內容多半還是尚未理解的 GC 機制中的 write barrier。如果只是將相關程式碼貼出來再說其實自己什麼也看不懂，似乎也不是很負責任的作法，因此這裡就還是先跳過了。</p>
+</blockquote>
+<h4 id="看起來很可疑的-gostartcallfn"><a class="header" href="#看起來很可疑的-gostartcallfn">看起來很可疑的 <code>gostartcallfn</code></a></h4>
+<p>接下來的一段程式碼是：</p>
+<pre><code class="language-go">        memclrNoHeapPointers(unsafe.Pointer(&amp;newg.sched), unsafe.Sizeof(newg.sched))
+        newg.sched.sp = sp
+        newg.stktopsp = sp
+        newg.sched.pc = funcPC(goexit) + sys.PCQuantum // +PCQuantum so that previous instruction is in same function
+        newg.sched.g = guintptr(unsafe.Pointer(newg))
+        gostartcallfn(&amp;newg.sched, fn)                                                                     
+        newg.gopc = callerpc
+        newg.ancestors = saveAncestors(callergp)
+        newg.startpc = fn.fn
+
+</code></pre>
+<p>大部分的內容都是對 <code>newg</code> 的成員變數或結構體的賦值，只有中間的 <code>gostartcallfn</code> 鶴立雞群，而且它還附帶一個傳入至今無人聞問的 <code>fn</code> 參數！這個 <code>fn</code> 一樣可以追溯到 <code>rt0_go</code> 時傳入的 <code>runtime.mainPC</code>。先看它的內容，在 <code>runtime/stack.go</code> 之中：</p>
+<pre><code class="language-go">func gostartcallfn(gobuf *gobuf, fv *funcval) { 
+        var fn unsafe.Pointer
+        if fv != nil {
+                fn = unsafe.Pointer(fv.fn)
+        } else {
+                fn = unsafe.Pointer(funcPC(nilfunc))
+        }
+        gostartcall(gobuf, fn, unsafe.Pointer(fv))
+}
+
+</code></pre>
+<p>這個函式前的註解說，'''這個函式調整 <code>gobuf</code> 的內容，像是要執行 <code>fn</code> 然後立刻做一個 <code>gosave</code> 那樣'''，本身也是迷霧重重。這裡的 <code>gobuf</code> 來自 <code>&amp;newg.sched</code>，看起來包含了名為 <code>sp</code>、<code>pc</code> 等等很像是 context 的東西；事實上，如果查詢 <code>gosave</code> 函式（位在 <code>runtime/asm_amd64.s</code>）的功能，可以發現它是用來轉換執行期環境，可說是 go 語言版本的 <code>setjmp</code> （順帶一題，相當於 <code>longjmp</code> 的則是同在附近的 <code>gogo</code> 函式）。但是這裡說是要調整 <code>gobuf</code> 內容嗎？看起來也不像。</p>
+<p>首先是檢查傳入的 <code>funcval</code> 型別的變數是否為空，若是空就讓它呼叫一個 <code>nilfunc</code></p>
+<pre><code class="language-go">func nilfunc() {
+        *(*uint8)(nil) = 0
+}
+
+</code></pre>
+<p>看起來也是蠻幽默的一種處理方式，直接對空指標寫值。這裡筆者難免有點好奇，這個機制在 runtime 執行至此的時候已經可以用了嗎？故意把上面的 <code>if-else</code> 判斷式拿掉而一律使用後者的結果，之後執行（這裡的測試方法是整組重編，在使用第一組 toolchain 的階段會踩到這個 signal）：</p>
+<pre><code>$ ./make.bash 
+Building Go cmd/dist using /usr/lib/go.
+Building Go toolchain1 using /usr/lib/go.
+Building Go bootstrap cmd/go (go_bootstrap) using Go toolchain1.
+Building Go toolchain2 using go_bootstrap and Go toolchain1.
+panic: runtime error: invalid memory address or nil pointer dereference
+[signal SIGSEGV: segmentation violation code=0x1 addr=0x0 pc=0x445ce2]
+
+goroutine 1 [running]:
+panic(0x79d040, 0xacf980)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/panic.go:722 +0x2c2
+runtime.panicmem(...)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/panic.go:199
+runtime.sigpanic()
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/signal_unix.go:408 +0x3da
+runtime.nilfunc()
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/stack.go:1073 +0x2
+runtime.goexit()
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/asm_amd64.s:1375 +0x1
+go tool dist: FAILED: /home/noner/FOSS/2019ITMAN/go/pkg/tool/linux_amd64/go_bootstrap install -gcflags=all= -ldflags=all= -i cmd/asm cmd/cgo cmd/compile cmd/link: exit status 2
+
+</code></pre>
+<p>所以其實 signal handler 已經註冊完了？留在疑問裡面等到之後再想辦法去挖掘吧。無論如何，等到這個判斷結束之後，轉一手進入名字很像的 <code>gostartcall</code> 函式（位在 <code>runtime/sys_x86.go</code>），gdb 追蹤到這裡時的顯示如下：</p>
+<pre><code>Breakpoint 1, runtime.gostartcallfn (fv=0x4d4648 &lt;runtime.mainPC&gt;, gobuf=&lt;optimized out&gt;)
+    at /home/noner/FOSS/2019ITMAN/go/src/runtime/stack.go:1081
+...
+runtime.gostartcall (fn=0x42a9b0 &lt;runtime.main&gt;, ctxt=0x4d4648 &lt;runtime.mainPC&gt;, buf=&lt;optimized out&gt;)
+    at /home/noner/FOSS/2019ITMAN/go/src/runtime/sys_x86.go:24
+...
+
+</code></pre>
+<p>其內容為：</p>
+<pre><code class="language-go">func gostartcallfn(gobuf *gobuf, fv *funcval) {
+        var fn unsafe.Pointer
+        if fv != nil {
+                fn = unsafe.Pointer(fv.fn)
+        } else { 
+                fn = unsafe.Pointer(funcPC(nilfunc))
+        }        
+        gostartcall(gobuf, fn, unsafe.Pointer(fv))
+}
+...
+func gostartcall(buf *gobuf, fn, ctxt unsafe.Pointer) {   
+        if buf.lr != 0 {
+                throw("invalid use of gostartcall")
+        }
+        buf.lr = buf.pc
+        buf.pc = uintptr(fn)
+        buf.ctxt = ctxt
+}
+
+</code></pre>
+<p>透過判斷式中的 <code>fv.fn</code> 取出的成員變數實際上是 <code>runtime.main</code>，這個之後被賦值給 <code>buf.pc</code>；先前的 <code>buf.pc</code> 內容則是在 <code>newproc1</code> 函式決定。看起來的確是只有調整 <code>buf</code> 的內容而已。</p>
+<h4 id="回到-newproc1"><a class="header" href="#回到-newproc1">回到 <code>newproc1</code></a></h4>
+<pre><code class="language-go">        memclrNoHeapPointers(unsafe.Pointer(&amp;newg.sched), unsafe.Sizeof(newg.sched))
+        newg.sched.sp = sp
+        newg.stktopsp = sp
+        newg.sched.pc = funcPC(goexit) + sys.PCQuantum // +PCQuantum so that previous instruction is in same function
+        newg.sched.g = guintptr(unsafe.Pointer(newg))
+        gostartcallfn(&amp;newg.sched, fn)                                                                     
+        newg.gopc = callerpc
+        newg.ancestors = saveAncestors(callergp)
+        newg.startpc = fn.fn
+
+</code></pre>
+<p>一開始有個架構相依的清除記憶體內容函式 <code>memclrNoHeapPointers</code>，之所以名稱如此是因為又牽扯到 GC 機制的緣故，要使用這個函式的話，必須要我們確定要清空的部份中不含 GC 會想要處理的內容才行。</p>
+<p>加上剛才在 <code>gostartcall*</code> 的內容，<code>newg.sched</code> 有被賦值的成員有 <code>sp</code>、<code>pc</code>（在這裡的部份後述，在 <code>gostartcall</code> 中被設給 <code>lr</code>）、<code>g</code>、<code>ctxt</code>（<code>runtime.mainPC</code>）。說到這個 <code>goexit</code>，筆者以之為關鍵字，找到了一篇簡體中文<a href="http://hushi55.github.io/2017/04/09/Golang-Goroutine">部落格</a>清楚的讓人汗顏......。</p>
+<p>如果直接用 vim-go 去搜的話，只會找到 stub 裡的空殼提到說這個不應該直接被呼叫，顯然也是初始化時的特殊用法之一。但是可以在 <code>./runtime/asm_amd64.s</code> 裡面找到 <code>TEXT runtime·goexit(SB),NOSPLIT,$0-0</code> 這個函式：</p>
+<pre><code>// The top-most function running on a goroutine
+// returns to goexit+PCQuantum.
+TEXT runtime·goexit(SB),NOSPLIT,$0-0
+        BYTE    $0x90   // NOP
+        CALL    runtime·goexit1(SB)     // does not return 
+        // traceback from goexit1 must hit code range of goexit
+        BYTE    $0x90   // NOP
+
+</code></pre>
+<blockquote>
+<p>有趣的是，在 gdb 裡面沒有辦法直接找到 <code>runtime·goexit</code> 所在的位址。那麼又要如何取得那個位置呢？筆者先是在閱讀組語時看見 <code>mov (%rbx),%rsi</code> 並推測這是 <code>fn = fv.fn</code> 運算式；然後發現這個 <code>rsi</code> 暫存器會被寫到 <code>0x40(%rax)</code> 去，那應該就是 <code>newg.sched.pc</code> 所在之處；最後按照位置推算 <code>newg.sched.lr</code> 應該就是它前一個的 <code>0x38(%rax)</code>，其中的值就是待會會展示的 <code>0x000000c00004c7d8</code>。</p>
+</blockquote>
+<p>註解說明，最上游（最一開始）執行在 goroutine 上的函式會回到 <code>goexit+PCQuantum</code> 這個位置，而這又是哪裡呢？筆者透過 gdb 去撈 <code>newg.sched</code> 的內容，勉強撈到</p>
+<pre><code>(gdb) x/10gx 0x000000c00004c7d8
+0xc00004c7d8:   0x00000000004530d1  0x0000000000000000
+...
+(gdb) x/10gx 0x4530d0
+0x4530d0 &lt;runtime.goexit&gt;:    0xcc90fffde2aae890  0xcccccccccccccccc
+0x4530e0 &lt;runtime.gcWriteBarrier&gt;:    0x246c894880c48348  0x894c78246c8d4878
+...
+(gdb) x/10i 0x4530d0
+   0x4530d0 &lt;runtime.goexit&gt;: nop
+   0x4530d1 &lt;runtime.goexit+1&gt;:   callq  0x431380 &lt;runtime.goexit1&gt;
+   0x4530d6 &lt;runtime.goexit+6&gt;:   nop
+...
+
+</code></pre>
+<p>也就是說，離開這些函式之後，應該會直接返回到 <code>0x4530d1</code> 的所在之處，呼叫 <code>goexit1</code> 離開或是排程。</p>
+<h3 id="疑問"><a class="header" href="#疑問">疑問</a></h3>
+<hr />
+<ul>
+<li>write barrier 的詳細定義、功能，與使用的情境。</li>
+<li>SIGSEGV 是什麼時候註冊好的？</li>
+<li>為什麼函式名稱裡面會有特殊字元？（如 <code>runtime·goexit</code>）是不是這種函式就無法在 gdb 裡面定位？</li>
+</ul>
+<h3 id="本日小結"><a class="header" href="#本日小結">本日小結</a></h3>
+<hr />
+<p>發現了類似 <code>setjmp</code>、<code>longjmp</code> 呼叫的內容，也看到執行使用者程式的準備一步一步完成了！各位讀者，我們明日再會！</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="day-20.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="day-22.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="day-20.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="day-22.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

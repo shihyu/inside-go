@@ -1,0 +1,377 @@
+<!DOCTYPE HTML>
+<html lang="zh-TW" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Day 29 第二十九天：終點的 main.main - 入吾 Go 中：走訪 Go 語言內部實作</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">入吾 Go 中：走訪 Go 語言內部實作</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://ithelp.ithome.com.tw/users/20103524/ironman/2589" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="第二十九天終點的-mainmain"><a class="header" href="#第二十九天終點的-mainmain">第二十九天：終點的 main.main</a></h1>
+<ul>
+<li>Day: 29</li>
+<li>發佈日期: 2019-10-14</li>
+<li>原文: <a href="https://ithelp.ithome.com.tw/articles/10227829">https://ithelp.ithome.com.tw/articles/10227829</a></li>
+</ul>
+<h3 id="前情提要"><a class="header" href="#前情提要">前情提要</a></h3>
+<hr />
+<p>昨日一路單槍匹馬的執行流程 fork 出了一個 <code>sysmon</code> 執行緒在另外一個 M 上，正式成為多線程並行程式了。</p>
+<h4 id="多線程除錯的現實"><a class="header" href="#多線程除錯的現實">多線程除錯的現實</a></h4>
+<p>我們現在有兩隻執行緒，其中一隻是原本的主執行緒，它執行完 <code>clone</code> 系統呼叫之後，因為都已經在各個呼叫的尾部，所以很快就沿著原路順序回到 <code>newosproc</code>、<code>newm1</code>、<code>newm</code>、<code>runtime.main</code> 去繼續執行期的設置工作；另一邊廂，新生的執行緒轉入 <code>sysmon</code> 函式之後，會做些什麼、走到哪裡呢？</p>
+<p>筆者對於 gdb 的運行原理其實不太熟悉，因此不能肯定我們一路以來對 GO 程式除錯的經驗是常態或是異常；但無論如何，筆者觀察到一個現象是，當我在除錯 prompt 中鎖定一個 thread 作 <code>step</code>（含進入函式呼叫的下一步指令） 或 <code>next</code>（不含進入函式呼叫的下一步指令）的時候，其餘的執行緒都會前進的非常快速，以致於我們必須<strong>反向操作</strong>。也就是說，如果我想看主執行緒，我可以卡在系統監控者做幾次步進之後再觀察；但由於被卡住的執行緒以外的執行緒都會執行的非常快速，所以其實常常這樣操作幾次之後，主執行緒就已經走完 <code>main.main</code> 並結束了。</p>
+<p>也就是說，我們這裡必須要很迂迴的去追了？也未必盡然，筆者發現 stackoverflow 上有<a href="https://stackoverflow.com/questions/2643884/how-to-continue-one-thread-at-a-time-when-debugging-a-multithreaded-program-in-g">這篇文章</a>關於特定執行緒的恢復政策問題，似乎可以解決上述問題？這就來試試看：</p>
+<pre><code>(gdb) set scheduler-locking on
+Target 'exec' cannot support this command.
+(gdb) b runtime.sysmon
+Breakpoint 1 at 0x434d10: file /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go, line 4315.
+(gdb) run
+Starting program: /home/noner/FOSS/2019ITMAN/go/src/hw 
+[New LWP 4598]
+[New LWP 4599]
+[New LWP 4600]
+[New LWP 4601]
+[Switching to LWP 4598]
+
+Thread 2 "hw" hit Breakpoint 1, runtime.sysmon () at /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:4315
+4315    func sysmon() {
+(gdb) set scheduler-locking on
+(gdb) info threads
+  Id   Target Id         Frame 
+  1    LWP 4594 "hw"     runtime.clone () at /home/noner/FOSS/2019ITMAN/go/src/runtime/sys_linux_amd64.s:556
+* 2    LWP 4598 "hw"     runtime.sysmon () at /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:4315
+  3    LWP 4599 "hw"     runtime.clone () at /home/noner/FOSS/2019ITMAN/go/src/runtime/sys_linux_amd64.s:556
+  4    LWP 4600 "hw"     runtime.clone () at /home/noner/FOSS/2019ITMAN/go/src/runtime/sys_linux_amd64.s:556
+  5    LWP 4601 "hw"     runtime.clone () at /home/noner/FOSS/2019ITMAN/go/src/runtime/sys_linux_amd64.s:556
+
+</code></pre>
+<p>各位讀者可以看到，這次的執行在卡在系統監控者所在之斷點之前，主執行緒那邊已經多 clone 出三個執行緒在等了。參考上述連結，使用 <code>set scheduler-locking on</code> 的排程鎖定功能，的確是可以如預期般運作的。</p>
+<blockquote>
+<p><code>scheduler-locking</code> 本身還有其他功能，可參考它本身的 help 訊息去使用。</p>
+</blockquote>
+<p>系統監控者函式內有一個巨大的迴圈且沒有離開條件。大略來說它做的事情就是 delay 一段時間，然後觀察是否要幫整個系統打雜，檢查 GC 狀態或是處理網路相關內容之類的操作。</p>
+<h4 id="主執行緒接下來的路"><a class="header" href="#主執行緒接下來的路">主執行緒接下來的路</a></h4>
+<p>既然如此，我們就可以不在被其他 thread 干擾的情況繼續看看主執行緒的行為了。</p>
+<pre><code class="language-go">        lockOSThread()
+         
+        doInit(&amp;runtime_inittask) // must be before defer
+         
+        // Defer unlock so that runtime.Goexit during init does the unlock too.
+        needUnlock := true
+        defer func() {
+                if needUnlock {
+                        unlockOSThread()
+                }
+        }()
+
+        gcenable()
+                
+        main_init_done = make(chan bool)
+                    
+        doInit(&amp;main_inittask)
+                
+        close(main_init_done)
+        needUnlock = false
+        unlockOSThread()
+
+    fn := main_main // make an indirect call, as the linker doesn't know the address of the main package when laying down the runtime
+        fn()
+
+</code></pre>
+<p>成對的內容可以先拆解分析。比方說 <code>lockOSThread</code> 和 <code>unlockOSThread</code>。<strong>鎖定</strong>是為了在初始化階段將主要 goroutine 綁定主要系統執行緒。綁定的方法也很簡單（反之亦然），它的內容是：</p>
+<pre><code class="language-go">func lockOSThread() {
+        getg().m.lockedInt++
+        dolockOSThread()                                                                                                          
+}
+...
+func dolockOSThread() {
+        if GOARCH == "wasm" {
+                return // no threads on wasm yet
+        }
+        _g_ := getg()
+        _g_.m.lockedg.set(_g_)
+        _g_.lockedm.set(_g_.m)
+}
+
+</code></pre>
+<p>值得一提的是解除綁定的呼叫出現過兩次，一次是真正的比較靠近尾端的時候，但第一次是使用 <code>defer</code> 呼叫的，根據註解，這可以讓它在 <code>runtime.Goexit</code> 執行時被呼叫。但是若是設置斷點於 <code>unlockOSThread</code>，會發現 Hello World 程式不會走到兩者任一。</p>
+<p><code>main_init_done</code> 是一個攜帶布林值的 channel，它也是與 C 的交接界面 cgo 機制的一部分，這裡就略過了。</p>
+<h4 id="doinit-是在-do-什麼-init"><a class="header" href="#doinit-是在-do-什麼-init"><code>doInit</code> 是在 do 什麼 init？</a></h4>
+<p>上面一段引用的程式碼片段中出現了兩個 <code>doInit</code> 函式呼叫。一個使用參數 <code>runtime_inittask</code>，另一個則是 <code>main_inittask</code>。第一個的註解顯示它必須在 <code>defer</code> 使用之前呼叫。這兩個參數都屬於 <code>initTask</code> 型別，</p>
+<pre><code class="language-go">type initTask struct { 
+        // TODO: pack the first 3 fields more tightly?
+        state uintptr // 0 = uninitialized, 1 = in progress, 2 = done
+        ndeps uintptr
+        nfns  uintptr
+        // followed by ndeps instances of an *initTask, one per package depended on
+        // followed by nfns pcs, one per init function to run
+}
+
+</code></pre>
+<p>這個裡面就是放置一些初始化軟體包（package）需要的內容了。<code>state</code> 表示整個軟體包初始化階段，我們稍後進入 <code>doInit</code> 時會看到；<code>ndeps</code> 是則是其他相依的軟體包數量，至於實體則會接在 <code>nfns</code> 之後；<code>nfns</code> 成員是初始化所需要的函式數量，那些函式也會被附帶在後面。所以雖然看起來這個結構體的固定成員只有三個 <code>uniptr</code>，但實際上是一個不定長度結構。</p>
+<p>處理這個結構的 <code>doInit</code> 方法如下：</p>
+<pre><code class="language-go">func doInit(t *initTask) {                                  
+        switch t.state {                                    
+        case 2: // fully initialized                        
+                return                                      
+        case 1: // initialization in progress               
+                throw("recursive call during initialization - linker skew")
+        default: // not initialized yet                     
+                t.state = 1 // initialization in progress   
+                for i := uintptr(0); i &lt; t.ndeps; i++ {     
+                        p := add(unsafe.Pointer(t), (3+i)*sys.PtrSize)
+                        t2 := *(**initTask)(p)              
+                        doInit(t2)                          
+                }                                           
+                for i := uintptr(0); i &lt; t.nfns; i++ {      
+                        p := add(unsafe.Pointer(t), (3+t.ndeps+i)*sys.PtrSize)
+                        f := *(*func())(unsafe.Pointer(&amp;p))
+                        f()                                 
+                }                                           
+                t.state = 2 // initialization done          
+        }                                                   
+}
+
+`state` 在這裡標誌著初始化的進度，完全的新軟體包為 0，還在初始化當中為 1，已經完成相依性和初始化函式執行則是完整的 2。整個 switch 結構之中還是預留了代表初始化當中的狀態的 1 的狀況，因為這時候可能表示 linker 出了點差錯。除此之外，本體還是在整個 default 的狀況裡面。
+
+有兩個 for 迴圈分別擔任**相依性解析**與**初始函式呼叫**的工作。對於 C 母語的筆者來說，不定長度結構體的拆解沒有什麼神秘，就是指標的計算與挪移而已，這裡其實也需要一模一樣的手續，所以使用 `add` 通用函式與 `unsafe.Pointer` 操作指標。至於取得相關位置之後的後續處置，第一個負責相依性解析的迴圈是遞迴呼叫 `doInit` 本身，這其實也相當直觀；初始函式的呼叫也相當如此，就是當作間接的函式呼叫。
+
+這個追蹤的過程也相當有趣。一開始的 `runtime` 初始有一個相依套件 `internal/bytealg`；後來的 `main` 初始就走得比較深了，雖然他本身只有 `fmt` 一個，但是後續還會因此使用到 `error`、`strconv`、`error`、`internal/reflectlite` 等等。
+
+
+這些都走完了之後，我們終於進入到了最初的起點，`main.main`。
+
+### 疑問
+---
+* 之前也問過了，可是為什麼函式指標要傳程式碼的指標的指標？
+* 什麼叫做主要 goroutine？主要 OS thread？難道不是 `runtime.g0` 和 `runtime.m0` 嗎？
+* `defer` 和 `go` 都是很常用的非同步關鍵字。它們生效的機制是什麼？（使用 gdb 已知 `go` 可能會觸發 `runtime.newproc`）
+* 為什麼 `main.main` 會沒辦法被 linker 定位？還是說 GO 的連結方式有順序性，所以才強調 **when laying down the runtime**？
+
+### 本日小結
+---
+介紹一個並行除錯技巧並觀察 `runtime.main` 的部份內容，並且終於來到 `main.main` 與之銜接。
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="day-28.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="day-30.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="day-28.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="day-30.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

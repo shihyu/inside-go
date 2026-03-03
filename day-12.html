@@ -1,0 +1,499 @@
+<!DOCTYPE HTML>
+<html lang="zh-TW" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Day 12 第十二天：簡單除錯 GO 語言程式 - 入吾 Go 中：走訪 Go 語言內部實作</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">入吾 Go 中：走訪 Go 語言內部實作</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://ithelp.ithome.com.tw/users/20103524/ironman/2589" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="第十二天簡單除錯-go-語言程式"><a class="header" href="#第十二天簡單除錯-go-語言程式">第十二天：簡單除錯 GO 語言程式</a></h1>
+<ul>
+<li>Day: 12</li>
+<li>發佈日期: 2019-09-27</li>
+<li>原文: <a href="https://ithelp.ithome.com.tw/articles/10221613">https://ithelp.ithome.com.tw/articles/10221613</a></li>
+</ul>
+<h3 id="前情提要"><a class="header" href="#前情提要">前情提要</a></h3>
+<hr />
+<p><code>schedinit</code> 函式終於接近尾聲。昨日追蹤的是與 module、signal 相關的幾項初始化。</p>
+<h3 id="schedinit"><a class="header" href="#schedinit"><code>schedinit</code></a></h3>
+<pre><code class="language-go"> ...
+    goargs()
+    goenvs()
+    parsedebugvars()
+    ...
+</code></pre>
+<p>其餘的部份比較瑣碎，因此 <code>schedinit</code> 函式就看到這裡為止吧。</p>
+<h4 id="goargs-函式在-runtimeruntime1go"><a class="header" href="#goargs-函式在-runtimeruntime1go"><code>goargs</code> 函式（在 <code>runtime/runtime1.go</code>）</a></h4>
+<blockquote>
+<p>不得不說筆者對於 <code>rintime1</code>、<code>runtime2</code> 這種命名實在極不欣賞，但顯然不可能有十全十美的設計，也許這麼命名也是有緣由的？之後再細究。</p>
+</blockquote>
+<pre><code class="language-go">func goargs() {
+    if GOOS == "windows" {
+        return
+    }
+    argslice = make([]string, argc)
+    for i := int32(0); i &lt; argc; i++ {
+        argslice[i] = gostringnocopy(argv_index(argv, i))
+    }
+}
+</code></pre>
+<p>windows 系列不需要處理這個部份？為什麼？只是我們使用的 Linux 環境顯然不會進入這個路徑，所以就不理會了。處理命令列參數的 <code>argslice</code> 變數先透過 <code>make</code> 呼叫作成，然後引用 <code>argv_index</code> 這個我們之前也看過的函式來取得每一個參數字串的位址。至於如何不拷貝就建構出這個參數字串的 slice，就要看看 <code>gostringnocopy</code> 這個函式怎麼做了：（在 <code>runtime/string.go</code>）</p>
+<pre><code class="language-go">func gostringnocopy(str *byte) string {
+    ss := stringStruct{str: unsafe.Pointer(str), len: findnull(str)}
+    s := *(*string)(unsafe.Pointer(&amp;ss))
+    return s
+}
+</code></pre>
+<p>先是使用傳入的 <code>byte</code> 陣列建構 <code>ss</code>、型別為 <code>stringStruct</code> 的變數，然後之後再用 <code>unsafe</code> 的手法取得指標，賦予成真正的 <code>string</code> 變數回傳。</p>
+<h4 id="goenvs-函式runtimeos_linuxgo"><a class="header" href="#goenvs-函式runtimeos_linuxgo"><code>goenvs</code> 函式（<code>runtime/os_linux.go</code>）</a></h4>
+<p><code>goenvs</code> 函式直接轉手呼叫了下面這個位在 <code>runtime/runtime1.go</code> 的函式：</p>
+<pre><code class="language-go">func goenvs_unix() {
+    // TODO(austin): ppc64 in dynamic linking mode doesn't
+    // guarantee env[] will immediately follow argv. Might cause
+    // problems.
+    n := int32(0)
+    for argv_index(argv, argc+1+n) != nil {
+        n++
+    }
+
+    envs = make([]string, n)
+    for i := int32(0); i &lt; n; i++ {
+        envs[i] = gostring(argv_index(argv, argc+1+i))
+    }
+}
+</code></pre>
+<p>這在很之前就曾經看過類似的初始化了！初始化環境變數時，使用到的一個重要假設就是這裡最一開始的 TODO 所提到的<strong>環境變數應該要直接跟在命令列參數後面</strong>。這裡的邏輯與上述類似，但為什麼不用 <code>gostringnocopy</code> 的版本？</p>
+<h4 id="parsedebugvar-函式runtimeruntime1go"><a class="header" href="#parsedebugvar-函式runtimeruntime1go"><code>parsedebugvar</code> 函式（<code>runtime/runtime1.go</code>）</a></h4>
+<p>這個函式解析 <code>GODEBUG</code> 和 <code>GOTRACEBACK</code> 環境變數，並依照指定的參數執行不同的除錯行為。首先第一個檢查的是 <code>GODEBUG</code>，透過一個指定初始值與中止條件、但並未指定迴圈前進條件的 for 迴圈：</p>
+<pre><code class="language-go">func parsedebugvars() {
+    ...
+        for p := gogetenv("GODEBUG"); p != ""; {
+                field := ""
+                i := index(p, ",")                                                                                                      
+                if i &lt; 0 {
+                        field, p = p, ""
+                } else {
+                        field, p = p[:i], p[i+1:]
+                }       
+                i = index(field, "=")
+                if i &lt; 0 {
+                        continue
+                }      
+                key, value := field[:i], field[i+1:]
+
+</code></pre>
+<p>這部份就是純粹的字串處理了。<code>p</code> 就是環境變數 <code>export GODEBUG=...</code> 的等號之後的一整段字串。由這個處理方式可知，<code>GODEBUG</code> 可以非常多功能的處理多組以逗號分隔、以等號賦值的 key-value 設定。至於哪些設定可以被接納呢？不妨參考<a href="https://golang.org/pkg/runtime/#pkg-overview">這份官方文件</a>的 <code>Environment Variables</code> 一節。</p>
+<p>筆者這裡挑選其中最簡單易懂的兩個選項出來玩玩看：<code>allocfreetrace</code>、<code>schedtrace</code>；前者是在每一次的記憶體配置與釋放時印出訊息，後者則是每隔一段時間印出 scheduler 的即時動態。先以以 hello world 程式為例看看前者的效應：</p>
+<pre><code>$ GODEBUG=allocfreetrace=1 ./hw
+...
+tracealloc(0xc0000941a0, 0xd0, map.bucket[string]*unicode.RangeTable)
+goroutine 1 [running, locked to thread]:
+runtime.mallocgc(0xd0, 0x4b0700, 0x1, 0xc000015438)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/malloc.go:1094 +0x4da fp=0xc00008ed48 sp=0xc00008eca8 pc=0x40b0ea
+runtime.newobject(...)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/malloc.go:1151
+runtime.(*hmap).newoverflow(0xc000092030, 0x4a4b00, 0xc000015320, 0xc0000940d0)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/map.go:262 +0x2b5 fp=0xc00008eda8 sp=0xc00008ed48 pc=0x40c315
+runtime.mapassign_faststr(0x4a4b00, 0xc000092030, 0x4c1736, 0x9, 0xc0000154b0)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/map_faststr.go:278 +0x220 fp=0xc00008ee10 sp=0xc00008eda8 pc=0x40fff0
+unicode.init()
+    /home/noner/FOSS/2019ITMAN/go/src/unicode/tables.go:3522 +0x12c7 fp=0xc00008ee70 sp=0xc00008ee10 pc=0x467c97
+runtime.doInit(0x549e20)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:5222 +0x8a fp=0xc00008eea0 sp=0xc00008ee70 pc=0x436f2a
+runtime.doInit(0x54aec0)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:5217 +0x57 fp=0xc00008eed0 sp=0xc00008eea0 pc=0x436ef7
+runtime.doInit(0x54a460)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:5217 +0x57 fp=0xc00008ef00 sp=0xc00008eed0 pc=0x436ef7
+runtime.doInit(0x54b7c0)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:5217 +0x57 fp=0xc00008ef30 sp=0xc00008ef00 pc=0x436ef7
+runtime.doInit(0x549da0)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:5217 +0x57 fp=0xc00008ef60 sp=0xc00008ef30 pc=0x436ef7
+runtime.main()
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:190 +0x1da fp=0xc00008efe0 sp=0xc00008ef60 pc=0x42aefa
+runtime.goexit()
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/asm_amd64.s:1357 +0x1 fp=0xc00008efe8 sp=0xc00008efe0 pc=0x453331
+...
+
+$ GODEBUG=allocfreetrace=1 ./hw 2&gt;&amp;1 | grep tracealloc | wc -l
+113
+$ GODEBUG=allocfreetrace=1 ./hw 2&gt;&amp;1 | grep tracealloc | wc -l
+108
+$ GODEBUG=allocfreetrace=1 ./hw 2&gt;&amp;1 | grep tracealloc | wc -l
+111
+$ GODEBUG=allocfreetrace=1 ./hw 2&gt;&amp;1 | grep tracealloc | wc -l
+107
+
+</code></pre>
+<p>中間略過很多內容，因為真正的印出訊息量相當龐大。事實上，在筆者的電腦上，直接運行 hellow world 程式的時間約是 2 ms，然而搭配這個印出記憶體紀錄的 debug 選項之後，約是 50 ms 之久。後續的這幾個指令示意，實際上的配置次數與執行時狀態有關，但這樣的 stack trace 也大概有 110 行左右。</p>
+<blockquote>
+<p>如果照著這 100 行左右的 bt 看，不就能夠掌握整個 hw 範例的生成過程嗎？也是另外一個切入的角度...</p>
+</blockquote>
+<blockquote>
+<p>有趣的是，在開啟這個選項下執行的 hw 範例雖然有很多 <code>tracealloc</code>，但卻一個 <code>tracefree</code> 都沒有，應該是因為程式本身很小的緣故？如果是針對 docker 執行檔無參數直接執行，則會看到許多 <code>tracefree</code>。再進一步簡單測試發現，docker 指令直接執行大概會經過 45K 道 <code>tracealloc</code>，但只會經過 21K+ 道 <code>tracefree</code>。</p>
+</blockquote>
+<p>第二個選項 <code>schedtrace</code> 用在 hw 上面的話沒有什麼意思，因為都只有一行就結束了。為此，我們需要豪華一點的範例，這裡因為篇幅的因素，就留到下一篇吧！</p>
+<h3 id="疑問"><a class="header" href="#疑問">疑問</a></h3>
+<hr />
+<ul>
+<li>為什麼 windows 不用相關機制來處理參數？windows 還是可以有命令列程式吧？</li>
+<li><code>gostringnocopy</code> 函式裡面有一些魔幻的手法在轉換結構體與 <code>string</code> 型別變數，後面的指標機制怎麼實作？</li>
+<li>為什麼環境變數的陣列建構時不用 <code>gostringnocopy</code>？</li>
+<li>兩個選項一起設置的話，印出的部份會互相干擾，這難道不是 bug 嗎？</li>
+</ul>
+<h3 id="本日小結"><a class="header" href="#本日小結">本日小結</a></h3>
+<hr />
+<h2 id="今日我們瀏覽了-goargs-與-goenvs-兩個函式是如何處理初始過程的重要資訊也花了較多篇幅介紹可以輕鬆透過環境變數啟動的除錯模式選項之一各位讀者我們明日再會-前情提要"><a class="header" href="#今日我們瀏覽了-goargs-與-goenvs-兩個函式是如何處理初始過程的重要資訊也花了較多篇幅介紹可以輕鬆透過環境變數啟動的除錯模式選項之一各位讀者我們明日再會-前情提要">今日我們瀏覽了 <code>goargs</code> 與 <code>goenvs</code> 兩個函式是如何處理初始過程的重要資訊，也花了較多篇幅介紹可以輕鬆透過環境變數啟動的除錯模式選項之一。各位讀者，我們明日再會！### 前情提要</a></h2>
+<p><code>schedinit</code> 函式終於接近尾聲。昨日追蹤的是與 module、signal 相關的幾項初始化。</p>
+<h3 id="schedinit-1"><a class="header" href="#schedinit-1"><code>schedinit</code></a></h3>
+<pre><code class="language-go"> ...
+    goargs()
+    goenvs()
+    parsedebugvars()
+    ...
+</code></pre>
+<p>其餘的部份比較瑣碎，因此 <code>schedinit</code> 函式就看到這裡為止吧。</p>
+<h4 id="goargs-函式在-runtimeruntime1go-1"><a class="header" href="#goargs-函式在-runtimeruntime1go-1"><code>goargs</code> 函式（在 <code>runtime/runtime1.go</code>）</a></h4>
+<blockquote>
+<p>不得不說筆者對於 <code>rintime1</code>、<code>runtime2</code> 這種命名實在極不欣賞，但顯然不可能有十全十美的設計，也許這麼命名也是有緣由的？之後再細究。</p>
+</blockquote>
+<pre><code class="language-go">func goargs() {
+    if GOOS == "windows" {
+        return
+    }
+    argslice = make([]string, argc)
+    for i := int32(0); i &lt; argc; i++ {
+        argslice[i] = gostringnocopy(argv_index(argv, i))
+    }
+}
+</code></pre>
+<p>windows 系列不需要處理這個部份？為什麼？只是我們使用的 Linux 環境顯然不會進入這個路徑，所以就不理會了。處理命令列參數的 <code>argslice</code> 變數先透過 <code>make</code> 呼叫作成，然後引用 <code>argv_index</code> 這個我們之前也看過的函式來取得每一個參數字串的位址。至於如何不拷貝就建構出這個參數字串的 slice，就要看看 <code>gostringnocopy</code> 這個函式怎麼做了：（在 <code>runtime/string.go</code>）</p>
+<pre><code class="language-go">func gostringnocopy(str *byte) string {
+    ss := stringStruct{str: unsafe.Pointer(str), len: findnull(str)}
+    s := *(*string)(unsafe.Pointer(&amp;ss))
+    return s
+}
+</code></pre>
+<p>先是使用傳入的 <code>byte</code> 陣列建構 <code>ss</code>、型別為 <code>stringStruct</code> 的變數，然後之後再用 <code>unsafe</code> 的手法取得指標，賦予成真正的 <code>string</code> 變數回傳。</p>
+<h4 id="goenvs-函式runtimeos_linuxgo-1"><a class="header" href="#goenvs-函式runtimeos_linuxgo-1"><code>goenvs</code> 函式（<code>runtime/os_linux.go</code>）</a></h4>
+<p><code>goenvs</code> 函式直接轉手呼叫了下面這個位在 <code>runtime/runtime1.go</code> 的函式：</p>
+<pre><code class="language-go">func goenvs_unix() {
+    // TODO(austin): ppc64 in dynamic linking mode doesn't
+    // guarantee env[] will immediately follow argv. Might cause
+    // problems.
+    n := int32(0)
+    for argv_index(argv, argc+1+n) != nil {
+        n++
+    }
+
+    envs = make([]string, n)
+    for i := int32(0); i &lt; n; i++ {
+        envs[i] = gostring(argv_index(argv, argc+1+i))
+    }
+}
+</code></pre>
+<p>這在很之前就曾經看過類似的初始化了！初始化環境變數時，使用到的一個重要假設就是這裡最一開始的 TODO 所提到的<strong>環境變數應該要直接跟在命令列參數後面</strong>。這裡的邏輯與上述類似，但為什麼不用 <code>gostringnocopy</code> 的版本？</p>
+<h4 id="parsedebugvar-函式runtimeruntime1go-1"><a class="header" href="#parsedebugvar-函式runtimeruntime1go-1"><code>parsedebugvar</code> 函式（<code>runtime/runtime1.go</code>）</a></h4>
+<p>這個函式解析 <code>GODEBUG</code> 和 <code>GOTRACEBACK</code> 環境變數，並依照指定的參數執行不同的除錯行為。首先第一個檢查的是 <code>GODEBUG</code>，透過一個指定初始值與中止條件、但並未指定迴圈前進條件的 for 迴圈：</p>
+<pre><code class="language-go">func parsedebugvars() {
+    ...
+        for p := gogetenv("GODEBUG"); p != ""; {
+                field := ""
+                i := index(p, ",")                                                                                                      
+                if i &lt; 0 {
+                        field, p = p, ""
+                } else {
+                        field, p = p[:i], p[i+1:]
+                }       
+                i = index(field, "=")
+                if i &lt; 0 {
+                        continue
+                }      
+                key, value := field[:i], field[i+1:]
+
+</code></pre>
+<p>這部份就是純粹的字串處理了。<code>p</code> 就是環境變數 <code>export GODEBUG=...</code> 的等號之後的一整段字串。由這個處理方式可知，<code>GODEBUG</code> 可以非常多功能的處理多組以逗號分隔、以等號賦值的 key-value 設定。至於哪些設定可以被接納呢？不妨參考<a href="https://golang.org/pkg/runtime/#pkg-overview">這份官方文件</a>的 <code>Environment Variables</code> 一節。</p>
+<p>筆者這裡挑選其中最簡單易懂的兩個選項出來玩玩看：<code>allocfreetrace</code>、<code>schedtrace</code>；前者是在每一次的記憶體配置與釋放時印出訊息，後者則是每隔一段時間印出 scheduler 的即時動態。先以以 hello world 程式為例看看前者的效應：</p>
+<pre><code>$ GODEBUG=allocfreetrace=1 ./hw
+...
+tracealloc(0xc0000941a0, 0xd0, map.bucket[string]*unicode.RangeTable)
+goroutine 1 [running, locked to thread]:
+runtime.mallocgc(0xd0, 0x4b0700, 0x1, 0xc000015438)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/malloc.go:1094 +0x4da fp=0xc00008ed48 sp=0xc00008eca8 pc=0x40b0ea
+runtime.newobject(...)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/malloc.go:1151
+runtime.(*hmap).newoverflow(0xc000092030, 0x4a4b00, 0xc000015320, 0xc0000940d0)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/map.go:262 +0x2b5 fp=0xc00008eda8 sp=0xc00008ed48 pc=0x40c315
+runtime.mapassign_faststr(0x4a4b00, 0xc000092030, 0x4c1736, 0x9, 0xc0000154b0)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/map_faststr.go:278 +0x220 fp=0xc00008ee10 sp=0xc00008eda8 pc=0x40fff0
+unicode.init()
+    /home/noner/FOSS/2019ITMAN/go/src/unicode/tables.go:3522 +0x12c7 fp=0xc00008ee70 sp=0xc00008ee10 pc=0x467c97
+runtime.doInit(0x549e20)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:5222 +0x8a fp=0xc00008eea0 sp=0xc00008ee70 pc=0x436f2a
+runtime.doInit(0x54aec0)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:5217 +0x57 fp=0xc00008eed0 sp=0xc00008eea0 pc=0x436ef7
+runtime.doInit(0x54a460)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:5217 +0x57 fp=0xc00008ef00 sp=0xc00008eed0 pc=0x436ef7
+runtime.doInit(0x54b7c0)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:5217 +0x57 fp=0xc00008ef30 sp=0xc00008ef00 pc=0x436ef7
+runtime.doInit(0x549da0)
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:5217 +0x57 fp=0xc00008ef60 sp=0xc00008ef30 pc=0x436ef7
+runtime.main()
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/proc.go:190 +0x1da fp=0xc00008efe0 sp=0xc00008ef60 pc=0x42aefa
+runtime.goexit()
+    /home/noner/FOSS/2019ITMAN/go/src/runtime/asm_amd64.s:1357 +0x1 fp=0xc00008efe8 sp=0xc00008efe0 pc=0x453331
+...
+
+$ GODEBUG=allocfreetrace=1 ./hw 2&gt;&amp;1 | grep tracealloc | wc -l
+113
+$ GODEBUG=allocfreetrace=1 ./hw 2&gt;&amp;1 | grep tracealloc | wc -l
+108
+$ GODEBUG=allocfreetrace=1 ./hw 2&gt;&amp;1 | grep tracealloc | wc -l
+111
+$ GODEBUG=allocfreetrace=1 ./hw 2&gt;&amp;1 | grep tracealloc | wc -l
+107
+
+</code></pre>
+<p>中間略過很多內容，因為真正的印出訊息量相當龐大。事實上，在筆者的電腦上，直接運行 hellow world 程式的時間約是 2 ms，然而搭配這個印出記憶體紀錄的 debug 選項之後，約是 50 ms 之久。後續的這幾個指令示意，實際上的配置次數與執行時狀態有關，但這樣的 stack trace 也大概有 110 行左右。</p>
+<blockquote>
+<p>如果照著這 100 行左右的 bt 看，不就能夠掌握整個 hw 範例的生成過程嗎？也是另外一個切入的角度...</p>
+</blockquote>
+<blockquote>
+<p>有趣的是，在開啟這個選項下執行的 hw 範例雖然有很多 <code>tracealloc</code>，但卻一個 <code>tracefree</code> 都沒有，應該是因為程式本身很小的緣故？如果是針對 docker 執行檔無參數直接執行，則會看到許多 <code>tracefree</code>。再進一步簡單測試發現，docker 指令直接執行大概會經過 45K 道 <code>tracealloc</code>，但只會經過 21K+ 道 <code>tracefree</code>。</p>
+</blockquote>
+<p>第二個選項 <code>schedtrace</code> 用在 hw 上面的話沒有什麼意思，因為都只有一行就結束了。為此，我們需要豪華一點的範例，這裡因為篇幅的因素，就留到下一篇吧！</p>
+<h3 id="疑問-1"><a class="header" href="#疑問-1">疑問</a></h3>
+<hr />
+<ul>
+<li>為什麼 windows 不用相關機制來處理參數？windows 還是可以有命令列程式吧？</li>
+<li><code>gostringnocopy</code> 函式裡面有一些魔幻的手法在轉換結構體與 <code>string</code> 型別變數，後面的指標機制怎麼實作？</li>
+<li>為什麼環境變數的陣列建構時不用 <code>gostringnocopy</code>？</li>
+<li>兩個選項一起設置的話，印出的部份會互相干擾，這難道不是 bug 嗎？</li>
+</ul>
+<h3 id="本日小結-1"><a class="header" href="#本日小結-1">本日小結</a></h3>
+<hr />
+<p>今日我們瀏覽了 <code>goargs</code> 與 <code>goenvs</code> 兩個函式是如何處理初始過程的重要資訊，也花了較多篇幅介紹可以輕鬆透過環境變數啟動的除錯模式選項之一。各位讀者，我們明日再會！</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="day-11.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="day-13.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="day-11.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="day-13.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>
