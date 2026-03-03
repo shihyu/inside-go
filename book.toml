@@ -1,0 +1,14 @@
+[book]
+authors = ["Codex"]
+language = "zh-TW"
+multilingual = false
+src = "src"
+title = "入吾 Go 中：走訪 Go 語言內部實作"
+
+[build]
+build-dir = "book"
+
+[output.html]
+default-theme = "light"
+git-repository-url = "https://ithelp.ithome.com.tw/users/20103524/ironman/2589"
+site-url = "/"
